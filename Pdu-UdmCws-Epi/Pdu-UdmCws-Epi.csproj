@@ -4,7 +4,12 @@
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>Pdu_UdmCws_Epi</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+
+
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PepperDashEssentials" Version="2.24.0" />
+  </ItemGroup>
 
 </Project>
