@@ -15,6 +15,8 @@ namespace PepperDash.Essentials.Core
         public UdmCwsRouteHandler(UdmCwsController controller)
         {
             _controller = controller;
+            //Note: Should likely redo this!!! I can get the type from essentials, rather than passing it around
+
         }
 
         public void AddCwsRoute()

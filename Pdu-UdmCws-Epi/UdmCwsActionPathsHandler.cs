@@ -19,6 +19,7 @@ namespace PepperDash.Essentials.Core
         public UdmCwsActionPathsHandler(UdmCwsController controller)
         {
             _controller = controller;
+            //Note: Should likely redo this!!! I can get the type from essentials, rather than passing it around
         }
 
         protected override void HandleGet(HttpCwsContext context)
