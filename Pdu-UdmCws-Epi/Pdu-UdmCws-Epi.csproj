@@ -9,7 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="PepperDashEssentials" Version="2.24.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pdu-UdmCws-Lib\Pdu-UdmCws-Lib.csproj" />
   </ItemGroup>
 
 </Project>

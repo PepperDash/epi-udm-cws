@@ -7,10 +7,12 @@ namespace PepperDash.Essentials.Core
     public class UdmCwsHandler : IUdmApi
     {
         private RoomResponse _roomResponse;
+
         public void Initialize()
         {
             _roomResponse = new RoomResponse();
         }
+
         public void SetDeviceProperty(DeviceKeys key, DeviceStatus device)
         {
             if(_roomResponse.Status.Devices == null)
@@ -24,5 +26,10 @@ namespace PepperDash.Essentials.Core
             }
             _roomResponse.Status.Devices.Add(key.ToString(), device);
         }
+
+        /// <summary>
+        /// Gets the current room response object
+        /// </summary>
+        public RoomResponse GetRoomResponse() => _roomResponse;
     }
 }
