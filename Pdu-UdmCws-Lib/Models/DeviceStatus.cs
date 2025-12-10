@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace UdmCws
+namespace PepperDash.Essentials.Core
 {
     public class DeviceStatus
     {

@@ -1,4 +1,4 @@
-﻿namespace UdmCws
+﻿namespace PepperDash.Essentials.Core
 {
         /// <summary>
         /// Enumeration of valid device identifiers for UDM API status properties.
