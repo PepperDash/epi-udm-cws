@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="UdmCwsActionPathsHandler.cs" />
     <Compile Include="UdmCwsHandler.cs" />
-    <Compile Include="UdmCwsRouteHandler.cs" />
     <Compile Include="UdmCwsStateManager.cs" />
     <Compile Include="UdmCwsStateManagerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
