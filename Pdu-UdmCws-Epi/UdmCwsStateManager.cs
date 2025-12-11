@@ -14,7 +14,6 @@ namespace PepperDash.Essentials.Plugin.UdmCws
 
         public UdmCwsStateManager(string key) : base(key)
         {
-            DeviceManager.AddDevice(this);
             Handler = new UdmCwsHandler();
             Handler.Initialize();
         }
