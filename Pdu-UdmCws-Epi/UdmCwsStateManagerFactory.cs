@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pdu_UdmCws_Epi
+namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCwsStateManagerFactory : EssentialsPluginDeviceFactory<UdmCwsStateManager>
     {
