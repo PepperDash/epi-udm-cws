@@ -2,16 +2,17 @@
 using PepperDash.Essentials.Core;
 
 
-namespace Pdu_UdmCws_Epi
+namespace PepperDash.Essentials.Plugin.UdmCws
 {
-    public class UdmCwsController : EssentialsDevice
+    public class UdmCwsStateManager
+        : EssentialsDevice
     {
         /// <summary>
         /// The UDM CWS handler instance that manages room response data
         /// </summary>
         public UdmCwsHandler Handler { get; private set; }
 
-        public UdmCwsController(string key) : base(key)
+        public UdmCwsStateManager(string key) : base(key)
         {
             DeviceManager.AddDevice(this);
             Handler = new UdmCwsHandler();

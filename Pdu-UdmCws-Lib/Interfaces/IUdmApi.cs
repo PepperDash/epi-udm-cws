@@ -1,5 +1,5 @@
 ﻿
-namespace PepperDash.Essentials.Core
+namespace PepperDash.Essentials.Plugin.UdmCws
 {
     public interface IUdmApi
     {
