@@ -12,7 +12,7 @@ namespace PepperDash.Plugin.UdmCws
         /// API version string
         /// </summary>
         [JsonProperty("apiVersion")]
-        public string ApiVersion { get; private set; }
+        public string ApiVersion { get; } = "1.0.0";
 
         /// <summary>
         /// Standard room properties
