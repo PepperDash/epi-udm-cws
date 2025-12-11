@@ -1,4 +1,5 @@
 ﻿using Crestron.SimplSharp.WebScripting;
+using Independentsoft.Exchange;
 using Newtonsoft.Json;
 using PepperDash.Core.Web.RequestHandlers;
 
@@ -8,12 +9,14 @@ namespace PepperDash.Plugin.UdmCws
     {
         protected override void HandleGet(HttpCwsContext context)
         {
-            var response = JsonConvert.SerializeObject(roomResponse);
-
+            var roomResponse = new UdmCwsHandler().GetRoomResponse();
+            var jsonResponse = JsonConvert.SerializeObject(roomResponse);
+            //We are going to make the roomResponse here, the lib library will ONLY provide state structure
+            //and state building methods
             context.Response.StatusCode = 200;
             context.Response.ContentType = "application/json";
             context.Response.Headers.Add("Content-Type", "application/json");
-            context.Response.Write(response, false);
+            context.Response.Write(jsonResponse, false);
             context.Response.End();
         }
     }

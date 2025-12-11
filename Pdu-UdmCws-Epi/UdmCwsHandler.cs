@@ -10,7 +10,7 @@ namespace PepperDash.Plugin.UdmCws
     public class UdmCwsHandler : IUdmApi
     {
 
-        private RoomResponse GetRoomResponse()
+        public RoomResponse GetRoomResponse()
         {       
             var _stateManager = DeviceManager.AllDevices
                 .OfType<UdmCwsStateManager>()
