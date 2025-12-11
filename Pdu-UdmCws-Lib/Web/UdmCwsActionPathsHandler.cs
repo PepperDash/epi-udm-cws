@@ -11,11 +11,28 @@ namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCwsActionPathsHandler : WebApiBaseRequestHandler
     {
-       
+
+        public UdmCwsActionPathsHandler(GetStateDelegate getStateDelegate)
+        {
+            getState = getStateDelegate;
+        }
+
+        public delegate State GetStateDelegate();
+
+        private GetStateDelegate getState;
 
         protected override void HandleGet(HttpCwsContext context)
         {
-            /*//var roomResponse = new UdmCwsHandler().GetRoomResponse(); //complete this later once interfaces are satisfied
+            if(getState == null)
+            {
+                context.Response.StatusCode = 500;
+                context.Response.ContentType = "application/json";
+                context.Response.Headers.Add("Content-Type", "application/json");
+                context.Response.Write("{\"error\":\"State delegate not set.\"}", false);
+                context.Response.End();
+                return;
+            }
+            var roomResponse = getState();
             var jsonResponse = JsonConvert.SerializeObject(roomResponse);
             //We are going to make the roomResponse here, the lib library will ONLY provide state structure
             //and state building methods
@@ -23,7 +40,7 @@ namespace PepperDash.Plugin.UdmCws
             context.Response.ContentType = "application/json";
             context.Response.Headers.Add("Content-Type", "application/json");
             context.Response.Write(jsonResponse, false);
-            context.Response.End();*/
+            context.Response.End();
         }
 
         
