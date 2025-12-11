@@ -17,7 +17,7 @@ namespace PepperDash.Plugin.UdmCws
                 {
                     Version = "1.0.0",
                     State = "active",
-                    Error = "",
+                    Error = "No Error",
                     Occupancy = true,
                     HelpRequest = "none",
                     Activity = "meeting"
@@ -26,7 +26,7 @@ namespace PepperDash.Plugin.UdmCws
                 {
                     Devices = new Dictionary<string, DeviceStatus>
                     {
-                        { "display", new DeviceStatus
+                        { DeviceKeys.device1.ToString(), new DeviceStatus
                             {
                                 Label = "Main Display",
                                 Status = "online",
@@ -34,32 +34,32 @@ namespace PepperDash.Plugin.UdmCws
                                 VideoSource = "hdmi1",
                                 AudioSource = "hdmi1",
                                 Usage = 45,
-                                Error = ""
+                                Error = "No Error"
                             }
                         },
-                        { "camera", new DeviceStatus
+                        { DeviceKeys.device2.ToString(), new DeviceStatus
                             {
                                 Label = "PTZ Camera",
                                 Status = "online",
                                 Description = "Pan-Tilt-Zoom Camera",
                                 VideoSource = "usb1",
-                                AudioSource = "",
+                                AudioSource = "N/A",
                                 Usage = 120,
-                                Error = ""
+                                Error = "No Error"
                             }
                         },
-                        { "microphone", new DeviceStatus
+                        { DeviceKeys.device3.ToString(), new DeviceStatus
                             {
                                 Label = "Ceiling Microphone",
                                 Status = "online",
                                 Description = "Beamforming ceiling mic",
-                                VideoSource = "",
+                                VideoSource = "N/A",
                                 AudioSource = "dante1",
                                 Usage = 89,
-                                Error = ""
+                                Error = "No Error"
                             }
                         },
-                        { "codec", new DeviceStatus
+                        { DeviceKeys.device4.ToString(), new DeviceStatus
                             {
                                 Label = "Video Codec",
                                 Status = "online",
@@ -67,32 +67,32 @@ namespace PepperDash.Plugin.UdmCws
                                 VideoSource = "internal",
                                 AudioSource = "internal",
                                 Usage = 230,
-                                Error = ""
+                                Error = "No Error"
                             }
                         }
                     }
                 },
                 Custom = new Dictionary<string, CustomProperties>
                 {
-                    { "roomName", new CustomProperties
+                    { PropertyKeys.property1.ToString(), new CustomProperties
                         {
                             Label = "Room Name",
                             Value = "Conference Room A"
                         }
                     },
-                    { "location", new CustomProperties
+                    { PropertyKeys.property2.ToString(), new CustomProperties
                         {
                             Label = "Location",
                             Value = "Building 1, Floor 2"
                         }
                     },
-                    { "capacity", new CustomProperties
+                    { PropertyKeys.property3.ToString(), new CustomProperties
                         {
                             Label = "Capacity",
                             Value = "12"
                         }
                     },
-                    { "equipment", new CustomProperties
+                    { PropertyKeys.property4.ToString(), new CustomProperties
                         {
                             Label = "Equipment",
                             Value = "Video conferencing, whiteboard"
