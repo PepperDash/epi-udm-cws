@@ -13,6 +13,7 @@ namespace Pdu_UdmCws_Epi
 
         public UdmCwsController(string key) : base(key)
         {
+            DeviceManager.AddDevice(this);
             Handler = new UdmCwsHandler();
             Handler.Initialize();
         }

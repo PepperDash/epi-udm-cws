@@ -10,18 +10,6 @@ namespace PepperDash.Essentials.Core
 {
     public class UdmCwsActionPathsHandler : WebApiBaseRequestHandler
     {
-        private readonly UdmCwsController _controller;
-
-        /// <summary>
-        /// Creates a new action paths handler for the UDM CWS API
-        /// </summary>
-        /// <param name="controller">The controller instance that owns the handler data</param>
-        public UdmCwsActionPathsHandler(UdmCwsController controller)
-        {
-            _controller = controller;
-            //Note: Should likely redo this!!! I can get the type from essentials, rather than passing it around
-        }
-
         protected override void HandleGet(HttpCwsContext context)
         {
             // Get the current room response from the controller's handler
