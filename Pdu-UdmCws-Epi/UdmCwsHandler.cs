@@ -9,31 +9,32 @@ namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCwsHandler : IUdmApi
     {
-        private RoomResponse _roomResponse;
+
+        private RoomResponse GetRoomResponse()
+        {       
+            var _stateManager = DeviceManager.AllDevices
+                .OfType<UdmCwsStateManager>()
+                .FirstOrDefault();
+
+            if (_stateManager == null)
+                return null;
+            return _stateManager.GetState();
+        }
         public void SetDeviceProperty(DeviceKeys key, DeviceStatus device)
         {
-            RoomResponse _roomResponse = DeviceManager.AllDevices
-                .OfType<UdmCwsStateManager>()
-                .FirstOrDefault().GetState();
+            var roomResponse = GetRoomResponse();
 
-            if (_roomResponse == null)
+            if (roomResponse == null || roomResponse.Status == null)
                 return;
 
-            if (_roomResponse.Status.Devices == null)
+            if (roomResponse.Status.Devices == null)
             {
-                _roomResponse.Status.Devices = new Dictionary<string, DeviceStatus>();
+                roomResponse.Status.Devices = new Dictionary<string, DeviceStatus>();
             }
-            if (_roomResponse.Status.Devices.ContainsKey(key.ToString()))
-            {
-                _roomResponse.Status.Devices[key.ToString()] = device;
-                return;
-            }
-            _roomResponse.Status.Devices.Add(key.ToString(), device);
+
+            roomResponse.Status.Devices[key.ToString()] = device;
         }
 
-        /// <summary>
-        /// Gets the current room response object
-        /// </summary>
-
+        public void 
     }
 }
