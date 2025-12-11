@@ -1,33 +1,40 @@
 ﻿using Crestron.SimplSharp;
+using Crestron.SimplSharp.WebScripting;
+using PepperDash.Core;
 using PepperDash.Core.Web;
 using PepperDash.Essentials.Core;
+using PepperDash.Essentials.Core.Web;
+using PepperDash.Essentials.Core.Web.RequestHandlers;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PepperDash.Plugin.UdmCws
 {
-    public class UdmCwsServerHandler : EssentialsDevice
+    public class UdmCwsServerHandler
     {
-        public UdmCwsServerHandler(string key, string name) : base(key, name)
+        HttpCwsRoute route;
+        EssentialsWebApi apiServer;
+        public UdmCwsServerHandler()
         {
+            route = new HttpCwsRoute("/api/roomstatus")
+            {
+                Name = "UdmCWSRoomStatus",
+                RouteHandler = new UdmCwsActionPathsHandler()
+            };
+            apiServer = DeviceManager
+                .AllDevices.OfType<EssentialsWebApi>()
+                .FirstOrDefault(d => d.Key == "essentialsWebApi");
         }
 
-        private readonly WebApiServer _server;
-        private readonly string _defaultBasePath = CrestronEnvironment.DevicePlatform == eDevicePlatform.Appliance
-            ? string.Format("/app{0:00}/api", InitialParametersClass.ApplicationNumber)
-            : "/api";
-
-        private const int DebugTrace = 0;
-        private const int DebugInfo = 1;
-        private const int DebugVerbose = 2;
-
-        public bool IsRegistered
+        public void AddRoute()
         {
-            get { return _server.IsRegistered; }
+            apiServer.AddRoute(route);
         }
+
+
+
 
 
 
