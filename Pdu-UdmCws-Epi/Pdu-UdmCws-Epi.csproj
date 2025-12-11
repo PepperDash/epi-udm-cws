@@ -5,6 +5,10 @@
     <RootNamespace>Pdu_UdmCws_Epi</RootNamespace>
   </PropertyGroup>
 
+<PropertyGroup>
+	<ProjectType>ProgramLibrary</ProjectType>
+</PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="PepperDashEssentials" Version="2.24.0" />
   </ItemGroup>
