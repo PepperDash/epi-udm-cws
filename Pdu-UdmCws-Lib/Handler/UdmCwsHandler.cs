@@ -7,22 +7,18 @@ using System.Threading.Tasks;
 
 namespace PepperDash.Plugin.UdmCws
 {
-    public class UdmCwsHandler : EssentialsDevice, IUdmApi
+    public class UdmCwsHandler : IUdmApi
     {
+        private readonly IHasState _stateManager;
 
-        public RoomResponse GetRoomResponse()
-        {       
-            var _stateManager = DeviceManager.AllDevices
-                .OfType<UdmCwsStateManager>()
-                .FirstOrDefault();
-
-            if (_stateManager == null)
-                return null;
-            return _stateManager.GetState();
+        public UdmCwsHandler(IHasState stateManager)
+        {
+            _stateManager = stateManager;
         }
+
         public void SetDeviceProperty(DeviceKeys key, DeviceStatus device)
         {
-            var roomResponse = GetRoomResponse();
+            var roomResponse = _stateManager.GetRoomResponse();
 
             if (roomResponse == null || roomResponse.Status == null)
                 return;
@@ -35,6 +31,6 @@ namespace PepperDash.Plugin.UdmCws
             roomResponse.Status.Devices[key.ToString()] = device;
         }
 
-        public void 
+
     }
 }

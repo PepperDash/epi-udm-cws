@@ -6,7 +6,7 @@ namespace PepperDash.Plugin.UdmCws
     /// <summary>
     /// Represents the complete room response for UDM API
     /// </summary>
-    public class RoomResponse
+    public class State
     {
         /// <summary>
         /// API version string

@@ -7,14 +7,16 @@ using System.Threading.Tasks;
 
 namespace PepperDash.Plugin.UdmCws
 {
-    public class UdmCwsStateManager : EssentialsDevice
+    public class UdmCwsStateManager : EssentialsDevice, IHasState
     {
-        public RoomResponse State { get; private set; }
+        public State State { get; private set; }
         public UdmCwsStateManager(string key) : base(key)
         {
-            State = new RoomResponse();
+            State = new State();
         }
 
-        public RoomResponse GetState() => State;
+
+        public State GetRoomResponse => State;
+
     }
 }
