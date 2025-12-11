@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PepperDash.Plugin.UdmCws
 {
-    public class UdmCwsHandler : IUdmApi
+    public class UdmCwsHandler : EssentialsDevice, IUdmApi
     {
 
         public RoomResponse GetRoomResponse()
