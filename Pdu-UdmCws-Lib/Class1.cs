@@ -1,5 +1,6 @@
-﻿namespace Pdu_UdmCws_Lib;
-public class Class1
+﻿namespace PepperDash.Plugin.UdmCws
 {
-
+    public class Class1
+    {
+    }
 }
