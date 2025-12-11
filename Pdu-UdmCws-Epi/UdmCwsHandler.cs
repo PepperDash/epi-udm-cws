@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PepperDash.Essentials.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,15 @@ namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCwsHandler : IUdmApi
     {
+        private RoomResponse _roomResponse;
         public void SetDeviceProperty(DeviceKeys key, DeviceStatus device)
         {
+            RoomResponse _roomResponse = DeviceManager.AllDevices
+                .OfType<UdmCwsStateManager>()
+                .FirstOrDefault().GetState();
+
+            if (_roomResponse == null)
+                return;
 
             if (_roomResponse.Status.Devices == null)
             {
