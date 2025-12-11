@@ -18,7 +18,7 @@ namespace PepperDash.Plugin.UdmCws
         EssentialsWebApi apiServer;
         public UdmCwsServerHandler()
         {
-            route = new HttpCwsRoute("/api/roomstatus")
+            route = new HttpCwsRoute("roomstatus")
             {
                 Name = "UdmCWSRoomStatus",
                 RouteHandler = new UdmCwsActionPathsHandler(MockState.GetMockState)

@@ -18,7 +18,7 @@ namespace PepperDash.Plugin.UdmCws
         public State State { get; private set; } = MockState.GetMockState();
         public UdmCwsStateManager(string key) : base(key)
         {
-            State = new State();
+            State = MockState.GetMockState();
             AddPreActivationAction(AddWebApiPaths);
         }
 
@@ -39,7 +39,7 @@ namespace PepperDash.Plugin.UdmCws
 
             // TODO: Add routes for the rest of the MC console commands
             
-            var route = new HttpCwsRoute("/roomstatus")
+            var route = new HttpCwsRoute("roomstatus")
             {
                 Name = "UdmCWSRoomStatus",
                 RouteHandler = new UdmCwsActionPathsHandler(() => GetRoomResponse)
