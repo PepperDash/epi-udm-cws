@@ -5,4 +5,8 @@
     <RootNamespace>Pdu_UdmCws_Plus</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Crestron.SimplSharp.SDK.Library" Version="2.21.177" />
+  </ItemGroup>
+
 </Project>
