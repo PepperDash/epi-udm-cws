@@ -5,4 +5,7 @@ namespace PepperDash.Plugin.UdmCws
     {
         void SetDeviceProperty(DeviceKeys DeviceKey, DeviceStatus DeviceStatus );
     }
+
+    public delegate State GetStateDelegate();
+
 }

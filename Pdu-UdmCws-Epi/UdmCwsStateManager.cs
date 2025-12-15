@@ -12,13 +12,10 @@ using System.Threading.Tasks;
 namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCwsStateManager : EssentialsDevice
-    {
-
-        
+    {       
         public State State { get; private set; } = MockState.GetMockState();
         public UdmCwsStateManager(string key) : base(key)
-        {
-            State = MockState.GetMockState();
+        {            
             AddPreActivationAction(AddWebApiPaths);
         }
 
@@ -27,24 +24,10 @@ namespace PepperDash.Plugin.UdmCws
 
         private void AddWebApiPaths()
         {
-            var apiServer = DeviceManager
-                .AllDevices.OfType<EssentialsWebApi>()
-                .FirstOrDefault(d => d.Key == "essentialsWebApi");
+            this.LogDebug("Adding UdmCws Web API Handler");
+            var serverHandler = new UdmCwsServerHandler(() => GetRoomResponse);
+            serverHandler.AddRoute();
 
-            if (apiServer == null)
-            {
-                this.LogWarning("No API Server available");
-                return;
-            }
-
-            // TODO: Add routes for the rest of the MC console commands
-            
-            var route = new HttpCwsRoute("roomstatus")
-            {
-                Name = "UdmCWSRoomStatus",
-                RouteHandler = new UdmCwsActionPathsHandler(() => GetRoomResponse)
-            };
-            apiServer.AddRoute(route);
         }
 
     }

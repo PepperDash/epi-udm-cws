@@ -17,7 +17,6 @@ namespace PepperDash.Plugin.UdmCws
             getState = getStateDelegate;
         }
 
-        public delegate State GetStateDelegate();
 
         private GetStateDelegate getState;
 
