@@ -6,7 +6,6 @@ using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Web;
 using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core.Web.RequestHandlers;
-using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
