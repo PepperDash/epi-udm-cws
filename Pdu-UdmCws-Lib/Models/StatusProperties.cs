@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace PepperDash.Essentials.Plugin.UdmCws
+namespace PepperDash.Plugin.UdmCws
 {
     public class StatusProperties
     {

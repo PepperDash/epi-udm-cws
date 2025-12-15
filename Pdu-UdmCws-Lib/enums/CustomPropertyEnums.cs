@@ -1,4 +1,4 @@
-﻿namespace PepperDash.Essentials.Plugin.UdmCws
+﻿namespace PepperDash.Plugin.UdmCws
 {
     /// <summary>
     /// Enumeration of valid custom property identifiers for UDM API.

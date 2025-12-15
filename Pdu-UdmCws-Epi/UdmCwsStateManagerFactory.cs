@@ -1,18 +1,13 @@
 ﻿using PepperDash.Core;
 using PepperDash.Essentials.Core;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace PepperDash.Essentials.Plugin.UdmCws
+namespace PepperDash.Plugin.UdmCws
 {
-    /// <summary>
-    /// Plugin device factory for devices that use IBasicCommunication
-    /// </summary>
-    /// <remarks>
-    /// Rename the class to match the device plugin being developed
-    /// </remarks>
-    /// <example>
-    /// "EssentialsPluginFactoryTemplate" renamed to "MyDeviceFactory"
-    /// </example>
     public class UdmCwsStateManagerFactory : EssentialsPluginDeviceFactory<UdmCwsStateManager>
     {
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PepperDash.Essentials.Plugin.UdmCws
+namespace PepperDash.Plugin.UdmCws
 {
 
     public class CustomProperties

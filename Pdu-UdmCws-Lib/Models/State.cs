@@ -1,0 +1,35 @@
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace PepperDash.Plugin.UdmCws
+{
+    /// <summary>
+    /// Represents the complete room response for UDM API
+    /// </summary>
+    public class State
+    {
+        /// <summary>
+        /// API version string
+        /// </summary>
+        [JsonProperty("apiVersion")]
+        public string ApiVersion { get; } = "1.0.0";
+
+        /// <summary>
+        /// Standard room properties
+        /// </summary>
+        [JsonProperty("standard")]
+        public StandardProperties Standard { get; set; }
+
+        /// <summary>
+        /// Status information including devices
+        /// </summary>
+        [JsonProperty("status")]
+        public StatusProperties Status { get; set; }
+
+        /// <summary>
+        /// Custom properties dictionary
+        /// </summary>
+        [JsonProperty("custom")]
+        public Dictionary<string, CustomProperties> Custom { get; set; }
+    }
+}
