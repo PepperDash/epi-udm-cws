@@ -9,14 +9,25 @@ namespace PepperDash.Plugin.UdmCws
         private const int MAX_DEVICES = 20;
         private const int MAX_PROPERTIES = 20;
 
+        // Singleton instance using Lazy<T> for thread-safe initialization
+        private static readonly System.Lazy<UdmCWSController> _instance =
+            new System.Lazy<UdmCWSController>(() => new UdmCWSController());
+
+        /// <summary>
+        /// Gets the singleton instance of UdmCWSController
+        /// </summary>
+        public static UdmCWSController Instance => _instance.Value;
+
         private State state = new State();
         private readonly object stateLock = new object();
         private UdmCwsServer cwsServer;
         private bool isInitialized = false;
 
-        public UdmCWSController()
+        // Private constructor prevents external instantiation
+        private UdmCWSController()
         {
             cwsServer = new UdmCwsServer();
+            CrestronConsole.PrintLine("UdmCWSController: Singleton instance created");
         }
 
         /// <summary>
@@ -41,6 +52,12 @@ namespace PepperDash.Plugin.UdmCws
         /// </summary>
         public void Shutdown()
         {
+            if (!isInitialized)
+            {
+                CrestronConsole.PrintLine("UdmCWSController: Server not initialized, nothing to shutdown");
+                return;
+            }
+
             cwsServer.Stop();
             isInitialized = false;
             CrestronConsole.PrintLine("UdmCWSController: Shutdown complete");
