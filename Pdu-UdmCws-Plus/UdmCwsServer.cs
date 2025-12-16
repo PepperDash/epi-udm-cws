@@ -16,6 +16,8 @@ namespace PepperDash.Plugin.UdmCws
         public UdmCwsServer()
         {
             _isRunning = false;
+            // Register for program stop events to ensure cleanup
+            CrestronEnvironment.ProgramStatusEventHandler += ProgramStatusHandler;
         }
 
         /// <summary>
@@ -107,6 +109,18 @@ namespace PepperDash.Plugin.UdmCws
             catch (System.Exception ex)
             {
                 ErrorLog.Error("UdmCwsServer: Error in DefaultRequestHandler - {0}", ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Handle program status changes (stop/restart)
+        /// </summary>
+        private void ProgramStatusHandler(eProgramStatusEventType status)
+        {
+            if (status == eProgramStatusEventType.Stopping)
+            {
+                CrestronConsole.PrintLine("UdmCwsServer: Program stopping, cleaning up server...");
+                Stop();
             }
         }
 
