@@ -119,7 +119,6 @@ namespace PepperDash.Plugin.UdmCws
         public void SetStandardState(string standardState)
         {
             state.Standard.State = standardState;
-            CrestronConsole.PrintLine("Standard State set to: " + standardState);
         }
 
     }
