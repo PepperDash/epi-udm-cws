@@ -76,7 +76,7 @@ namespace PepperDash.Plugin.UdmCws
 
                 CrestronConsole.PrintLine("UdmCwsServer: Server started successfully");
                 CrestronConsole.PrintLine("UdmCwsServer: Route registered: /cws{0}/{1}", serverPrefix, appRoute);
-                CrestronConsole.PrintLine("UdmCwsServer: Access at {0}/cws{1}/{2}", ipAddress, serverPrefix, appRoute);
+                CrestronConsole.PrintLine("UdmCwsServer: Access at http(s)://{0}/cws{1}/{2}", ipAddress, serverPrefix, appRoute);
 
                 // Print all routes
                 CrestronConsole.PrintLine("UdmCwsServer: ===== Registered Routes =====");
