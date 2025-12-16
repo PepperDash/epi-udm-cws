@@ -20,6 +20,7 @@ namespace PepperDash.Plugin.UdmCws
 
         private State state = new State();
         private readonly object stateLock = new object();
+        private readonly object initLock = new object();
         private UdmCwsServer cwsServer;
         private bool isInitialized = false;
 
@@ -54,15 +55,18 @@ namespace PepperDash.Plugin.UdmCws
         /// </summary>
         private void InitializeInstance()
         {
-            if (isInitialized)
+            lock (initLock)
             {
-                CrestronConsole.PrintLine("UdmCWSController: Already initialized");
-                return;
-            }
+                if (isInitialized)
+                {
+                    CrestronConsole.PrintLine("UdmCWSController: Already initialized");
+                    return;
+                }
 
-            cwsServer.Start(GetState);
-            isInitialized = true;
-            CrestronConsole.PrintLine("UdmCWSController: Initialized successfully");
+                cwsServer.Start(GetState);
+                isInitialized = true;
+                CrestronConsole.PrintLine("UdmCWSController: Initialized successfully");
+            }
         }
 
         /// <summary>
@@ -70,15 +74,18 @@ namespace PepperDash.Plugin.UdmCws
         /// </summary>
         private void ShutdownInstance()
         {
-            if (!isInitialized)
+            lock (initLock)
             {
-                CrestronConsole.PrintLine("UdmCWSController: Server not initialized, nothing to shutdown");
-                return;
-            }
+                if (!isInitialized)
+                {
+                    CrestronConsole.PrintLine("UdmCWSController: Server not initialized, nothing to shutdown");
+                    return;
+                }
 
-            cwsServer.Stop();
-            isInitialized = false;
-            CrestronConsole.PrintLine("UdmCWSController: Shutdown complete");
+                cwsServer.Stop();
+                isInitialized = false;
+                CrestronConsole.PrintLine("UdmCWSController: Shutdown complete");
+            }
         }
 
         private State GetState()
