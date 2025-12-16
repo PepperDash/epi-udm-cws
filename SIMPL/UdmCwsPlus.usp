@@ -6,10 +6,30 @@
 #ENABLE_TRACE
 #USER_SIMPLSHARP_LIBRARY "Pdu-UdmCws-Plus"
 
-// Inputs
+// Control Inputs
 Digital_Input Initialize;
 Digital_Input Shutdown;
+
+// Standard Properties
 String_Input StandardVersion[255];
+String_Input StandardState[255];
+String_Input StandardError[255];
+Digital_Input StandardOccupancy;
+String_Input StandardHelpRequest[255];
+String_Input StandardActivity[255];
+
+// Device Properties (1-20)
+String_Input DeviceLabel[20][255];
+String_Input DeviceStatusText[20][255];
+String_Input DeviceDescription[20][255];
+String_Input DeviceVideoSource[20][255];
+String_Input DeviceAudioSource[20][255];
+Analog_Input DeviceUsage[20];
+String_Input DeviceError[20][255];
+
+// Custom Properties (1-20)
+String_Input PropertyLabel[20][255];
+String_Input PropertyValue[20][255];
 
 UdmCWSController controller;
 
@@ -25,8 +45,104 @@ Push Shutdown
     controller.Shutdown();
 }
 
+// Standard Properties
 Change StandardVersion
 {
-    controller.SetStandardState(StandardVersion);
+    controller.SetStandardVersion(StandardVersion);
 }
-        
+
+Change StandardState
+{
+    controller.SetStandardState(StandardState);
+}
+
+Change StandardError
+{
+    controller.SetStandardError(StandardError);
+}
+
+Push StandardOccupancy
+{
+    controller.SetStandardOccupancy(1);
+}
+
+Release StandardOccupancy
+{
+    controller.SetStandardOccupancy(0);
+}
+
+Change StandardHelpRequest
+{
+    controller.SetStandardHelpRequest(StandardHelpRequest);
+}
+
+Change StandardActivity
+{
+    controller.SetStandardActivity(StandardActivity);
+}
+
+// Device Properties
+Change DeviceLabel
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetDeviceLabel(index, DeviceLabel[index]);
+}
+
+Change DeviceStatusText
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetDeviceStatus(index, DeviceStatusText[index]);
+}
+
+Change DeviceDescription
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetDeviceDescription(index, DeviceDescription[index]);
+}
+
+Change DeviceVideoSource
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetDeviceVideoSource(index, DeviceVideoSource[index]);
+}
+
+Change DeviceAudioSource
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetDeviceAudioSource(index, DeviceAudioSource[index]);
+}
+
+Change DeviceUsage
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetDeviceUsage(index, DeviceUsage[index]);
+}
+
+Change DeviceError
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetDeviceError(index, DeviceError[index]);
+}
+
+// Custom Properties
+Change PropertyLabel
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetPropertyLabel(index, PropertyLabel[index]);
+}
+
+Change PropertyValue
+{
+    Integer index;
+    index = GetLastModifiedArrayIndex();
+    controller.SetPropertyValue(index, PropertyValue[index]);
+}
+
