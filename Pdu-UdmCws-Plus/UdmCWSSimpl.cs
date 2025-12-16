@@ -1,5 +1,7 @@
 ﻿
 
+using Crestron.SimplSharp;
+
 namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCWSController
@@ -7,7 +9,7 @@ namespace PepperDash.Plugin.UdmCws
 
         private State state = new State();
 
-        private State SetState()
+        private State GetState()
         {
             return state;
         }
@@ -84,6 +86,7 @@ namespace PepperDash.Plugin.UdmCws
         public void SetStandardState(string standardState)
         {
             state.Standard.State = standardState;
+            CrestronConsole.PrintLine("Standard State set to: " + standardState);
         }
 
     }
