@@ -35,11 +35,15 @@ namespace PepperDash.Plugin.UdmCws
             {
                 _getStateDelegate = getStateDelegate;
 
+                // Get the current app number dynamically
+                var appNumber = InitialParametersClass.ApplicationNumber;
+                var appRoute = string.Format("app{0:D2}/roomstatus", appNumber);
+
                 // Create the server instance
                 _server = new HttpCwsServer("/cws");
 
-                // Create and register the route for app01/roomStatus
-                var route = new HttpCwsRoute("app01/roomstatus")
+                // Create and register the route for app[XX]/roomStatus
+                var route = new HttpCwsRoute(appRoute)
                 {
                     Name = "UdmCWSRoomStatus",
                     RouteHandler = new UdmCwsActionPathsHandler(_getStateDelegate)
@@ -52,7 +56,7 @@ namespace PepperDash.Plugin.UdmCws
 
                 _isRunning = true;
                 CrestronConsole.PrintLine("UdmCwsServer: Server started successfully on port {0}", port);
-                CrestronConsole.PrintLine("UdmCwsServer: Access room status at [ip]/cws/app01/roomstatus");
+                CrestronConsole.PrintLine("UdmCwsServer: Access room status at [ip]/cws/{0}", appRoute);
             }
             catch (System.Exception ex)
             {
