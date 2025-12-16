@@ -9,4 +9,8 @@
     <PackageReference Include="Crestron.SimplSharp.SDK.Library" Version="2.21.177" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Pdu-UdmCws-Lib\Pdu-UdmCws-Lib.csproj" />
+  </ItemGroup>
+
 </Project>
