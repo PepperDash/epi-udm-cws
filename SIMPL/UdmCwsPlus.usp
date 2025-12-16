@@ -6,15 +6,27 @@
 #ENABLE_TRACE
 #USER_SIMPLSHARP_LIBRARY "Pdu-UdmCws-Plus"
 
-
+// Inputs
+Digital_Input Initialize;
+Digital_Input Shutdown;
 String_Input StandardVersion[255];
 
 UdmCWSController controller;
 
+// Initialize the CWS server
+Push Initialize
+{
+    controller.Initialize();
+}
+
+// Shutdown the CWS server
+Push Shutdown
+{
+    controller.Shutdown();
+}
 
 Change StandardVersion
 {
- controller.SetStandardState(StandardVersion);
-
+    controller.SetStandardState(StandardVersion);
 }
         

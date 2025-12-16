@@ -22,11 +22,15 @@
   Code=1
   SysRev5=3.083
   SMWRev=2.02.05
+  InputCue1=Initialize
+  InputSigType1=Digital
+  InputCue2=Shutdown
+  InputSigType2=Digital
   InputList2Cue1=StandardVersion
   InputList2SigType1=Serial
   ParamCue1=[Reference Name]
-  MinVariableInputs=0
-  MaxVariableInputs=0
+  MinVariableInputs=2
+  MaxVariableInputs=2
   MinVariableInputsList2=1
   MaxVariableInputsList2=1
   MinVariableOutputs=0

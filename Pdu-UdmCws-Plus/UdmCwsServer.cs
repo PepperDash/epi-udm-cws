@@ -22,8 +22,7 @@ namespace PepperDash.Plugin.UdmCws
         /// Initialize and start the CWS server
         /// </summary>
         /// <param name="getStateDelegate">Delegate that returns the current state</param>
-        /// <param name="port">Port number (default 80)</param>
-        public void Start(GetStateDelegate getStateDelegate, int port = 80)
+        public void Start(GetStateDelegate getStateDelegate)
         {
             if (_isRunning)
             {
@@ -39,24 +38,48 @@ namespace PepperDash.Plugin.UdmCws
                 var appNumber = InitialParametersClass.ApplicationNumber;
                 var appRoute = string.Format("app{0:D2}/roomstatus", appNumber);
 
+                CrestronConsole.PrintLine("UdmCwsServer: App number detected: {0}", appNumber);
+                CrestronConsole.PrintLine("UdmCwsServer: Creating server with prefix '/cws'");
+
                 // Create the server instance
                 _server = new HttpCwsServer("/cws");
+                CrestronConsole.PrintLine("UdmCwsServer: Server instance created");
 
                 // Create and register the route for app[XX]/roomStatus
+                CrestronConsole.PrintLine("UdmCwsServer: Creating route '{0}'", appRoute);
                 var route = new HttpCwsRoute(appRoute)
                 {
                     Name = "UdmCWSRoomStatus",
                     RouteHandler = new UdmCwsActionPathsHandler(_getStateDelegate)
                 };
+                CrestronConsole.PrintLine("UdmCwsServer: Route object created");
 
+                CrestronConsole.PrintLine("UdmCwsServer: Adding route to server.Routes collection");
                 _server.Routes.Add(route);
+                CrestronConsole.PrintLine("UdmCwsServer: Route added, total routes: {0}", _server.Routes.Count);
 
                 // Register the server
+                CrestronConsole.PrintLine("UdmCwsServer: Calling _server.Register()...");
                 _server.Register();
+                CrestronConsole.PrintLine("UdmCwsServer: _server.Register() completed");
 
                 _isRunning = true;
-                CrestronConsole.PrintLine("UdmCwsServer: Server started successfully on port {0}", port);
-                CrestronConsole.PrintLine("UdmCwsServer: Access room status at [ip]/cws/{0}", appRoute);
+
+                // Get the actual IP address
+                var ipAddress = CrestronEthernetHelper.GetEthernetParameter(
+                    CrestronEthernetHelper.ETHERNET_PARAMETER_TO_GET.GET_CURRENT_IP_ADDRESS, 0);
+
+                CrestronConsole.PrintLine("UdmCwsServer: Server started successfully");
+                CrestronConsole.PrintLine("UdmCwsServer: Route registered: /cws/{0}", appRoute);
+                CrestronConsole.PrintLine("UdmCwsServer: Access at {0}/cws/{1}", ipAddress, appRoute);
+
+                // Print all routes
+                CrestronConsole.PrintLine("UdmCwsServer: ===== Registered Routes =====");
+                foreach (var r in _server.Routes)
+                {
+                    CrestronConsole.PrintLine("UdmCwsServer:   - Name: {0}, Path: {1}, Handler: {2}", r.Name, r.Url, r.RouteHandler.GetType().Name);
+                }
+                CrestronConsole.PrintLine("UdmCwsServer: ============================");
             }
             catch (System.Exception ex)
             {
