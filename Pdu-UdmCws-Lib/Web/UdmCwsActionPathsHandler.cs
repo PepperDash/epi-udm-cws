@@ -9,7 +9,7 @@ using Renci.SshNet.Security;
 
 namespace PepperDash.Plugin.UdmCws
 {
-    public class UdmCwsActionPathsHandler : WebApiBaseRequestHandler
+    public class UdmCwsActionPathsHandler : WebRequestHandlerBase
     {
 
         public UdmCwsActionPathsHandler(GetStateDelegate getStateDelegate)
