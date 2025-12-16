@@ -31,5 +31,18 @@ namespace PepperDash.Plugin.UdmCws
         /// </summary>
         [JsonProperty("custom")]
         public Dictionary<string, CustomProperties> Custom { get; set; }
+
+        public State()
+        {
+            Standard = new StandardProperties();
+            Status = new StatusProperties();
+            Custom = new Dictionary<string, CustomProperties>();
+
+            // Pre-populate with property1-property20
+            for (int i = 1; i <= 20; i++)
+            {
+                Custom[$"property{i}"] = new CustomProperties();
+            }
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace PepperDash.Plugin.UdmCws
 {
-    public class UdmCWSSimpl
+    public class UdmCWSController
     {
 
         private State state = new State();
