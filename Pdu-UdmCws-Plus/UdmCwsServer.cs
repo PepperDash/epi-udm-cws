@@ -36,13 +36,14 @@ namespace PepperDash.Plugin.UdmCws
 
                 // Get the current app number dynamically
                 var appNumber = InitialParametersClass.ApplicationNumber;
-                var appRoute = string.Format("app{0:D2}/roomstatus", appNumber);
+                var serverPrefix = string.Format("/app{0:D2}/api", appNumber);
+                var appRoute = "roomstatus";
 
                 CrestronConsole.PrintLine("UdmCwsServer: App number detected: {0}", appNumber);
-                CrestronConsole.PrintLine("UdmCwsServer: Creating server with prefix '/api'");
+                CrestronConsole.PrintLine("UdmCwsServer: Creating server with prefix '{0}'", serverPrefix);
 
                 // Create the server instance
-                _api = new HttpCwsServer("/api");
+                _api = new HttpCwsServer(serverPrefix);
                 CrestronConsole.PrintLine("UdmCwsServer: Server instance created");
 
                 // Add event handler for received requests
@@ -74,8 +75,8 @@ namespace PepperDash.Plugin.UdmCws
                     CrestronEthernetHelper.ETHERNET_PARAMETER_TO_GET.GET_CURRENT_IP_ADDRESS, 0);
 
                 CrestronConsole.PrintLine("UdmCwsServer: Server started successfully");
-                CrestronConsole.PrintLine("UdmCwsServer: Route registered: /cws/api/{0}", appRoute);
-                CrestronConsole.PrintLine("UdmCwsServer: Access at {0}/cws/api/{1}", ipAddress, appRoute);
+                CrestronConsole.PrintLine("UdmCwsServer: Route registered: /cws{0}/{1}", serverPrefix, appRoute);
+                CrestronConsole.PrintLine("UdmCwsServer: Access at {0}/cws{1}/{2}", ipAddress, serverPrefix, appRoute);
 
                 // Print all routes
                 CrestronConsole.PrintLine("UdmCwsServer: ===== Registered Routes =====");
