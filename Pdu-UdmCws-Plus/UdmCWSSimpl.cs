@@ -6,8 +6,41 @@ namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCWSController
     {
-
         private State state = new State();
+        private UdmCwsServer cwsServer;
+        private bool isInitialized = false;
+
+        public UdmCWSController()
+        {
+            cwsServer = new UdmCwsServer();
+        }
+
+        /// <summary>
+        /// Initialize and start the CWS server
+        /// Must be called before the server can serve requests
+        /// </summary>
+        public void Initialize()
+        {
+            if (isInitialized)
+            {
+                CrestronConsole.PrintLine("UdmCWSController: Already initialized");
+                return;
+            }
+
+            cwsServer.Start(GetState);
+            isInitialized = true;
+            CrestronConsole.PrintLine("UdmCWSController: Initialized successfully");
+        }
+
+        /// <summary>
+        /// Stop the CWS server
+        /// </summary>
+        public void Shutdown()
+        {
+            cwsServer.Stop();
+            isInitialized = false;
+            CrestronConsole.PrintLine("UdmCWSController: Shutdown complete");
+        }
 
         private State GetState()
         {
