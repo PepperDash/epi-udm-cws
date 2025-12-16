@@ -1,0 +1,42 @@
+
+//Programmer: PepperDash - AC
+//Module: UDM CWS Custom Properties
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#USER_SIMPLSHARP_LIBRARY "Pdu-UdmCws-Plus"
+
+//Constants
+#Define_Constant STRING_SIZE 255
+
+//Parameter Properties
+Integer_Parameter index;
+#Begin_Parameter_Properties index
+propBounds=1d,20d;
+propDefaultValue = 1d;
+propValidUnits = unitDecimal;
+#End_Parameter_Properties
+
+
+// Custom Properties
+String_Input _Skip_, PropertyLabel[STRING_SIZE], PropertyValue[STRING_SIZE];
+
+
+// Custom Properties
+Change PropertyLabel
+{
+    UdmCWSController.SetPropertyLabel(index, PropertyLabel);
+}
+
+Change PropertyValue
+{
+    UdmCWSController.SetPropertyValue(index, PropertyValue);
+}
+
+function main()
+{
+    WaitForInitializationComplete();
+    UdmCWSController.Initialize();
+}
+

@@ -1,0 +1,68 @@
+
+//Programmer: PepperDash - AC
+//Module: UDM CWS Device Properties
+
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#USER_SIMPLSHARP_LIBRARY "Pdu-UdmCws-Plus"
+
+//Constants
+#Define_Constant STRING_SIZE 255
+
+//Parameter Properties
+Integer_Parameter index;
+#Begin_Parameter_Properties index
+propBounds=1d,20d;
+propDefaultValue = 1d;
+propValidUnits = unitDecimal;
+#End_Parameter_Properties
+
+
+// Device Properties
+String_Input _Skip_, DeviceLabel[STRING_SIZE], DeviceStatusText[STRING_SIZE], DeviceDescription[STRING_SIZE], DeviceVideoSource[STRING_SIZE], DeviceAudioSource[STRING_SIZE], DeviceError[STRING_SIZE];
+Analog_Input DeviceUsage;
+
+
+// Device Properties
+Change DeviceLabel
+{
+    UdmCWSController.SetDeviceLabel(index, DeviceLabel);
+}
+
+Change DeviceStatusText
+{
+    UdmCWSController.SetDeviceStatus(index, DeviceStatusText);
+}
+
+Change DeviceDescription
+{
+    UdmCWSController.SetDeviceDescription(index, DeviceDescription);
+}
+
+Change DeviceVideoSource
+{
+    UdmCWSController.SetDeviceVideoSource(index, DeviceVideoSource);
+}
+
+Change DeviceAudioSource
+{
+    UdmCWSController.SetDeviceAudioSource(index, DeviceAudioSource);
+}
+
+Change DeviceUsage
+{
+    UdmCWSController.SetDeviceUsage(index, DeviceUsage);
+}
+
+Change DeviceError
+{
+    UdmCWSController.SetDeviceError(index, DeviceError);
+}
+
+function main()
+{
+    WaitForInitializationComplete();
+    UdmCWSController.Initialize();
+}
+

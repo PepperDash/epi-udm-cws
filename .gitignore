@@ -364,3 +364,5 @@ MigrationBackup/
 
 # SIMPL+ work folder
 SIMPL/SPlsWork/
+Pdu-UdmCws-Plus/UdmCWSSimpl.cs
+.claude/settings.local.json

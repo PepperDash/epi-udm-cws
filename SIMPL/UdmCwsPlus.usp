@@ -31,54 +31,54 @@ String_Input DeviceError[20][255];
 String_Input PropertyLabel[20][255];
 String_Input PropertyValue[20][255];
 
-UdmCWSController controller;
+// No controller variable needed - using singleton pattern
 
 // Initialize the CWS server
 Push Initialize
 {
-    controller.Initialize();
+    UdmCWSController.Initialize();
 }
 
 // Shutdown the CWS server
 Push Shutdown
 {
-    controller.Shutdown();
+    UdmCWSController.Shutdown();
 }
 
 // Standard Properties
 Change StandardVersion
 {
-    controller.SetStandardVersion(StandardVersion);
+    UdmCWSController.SetStandardVersion(StandardVersion);
 }
 
 Change StandardState
 {
-    controller.SetStandardState(StandardState);
+    UdmCWSController.SetStandardState(StandardState);
 }
 
 Change StandardError
 {
-    controller.SetStandardError(StandardError);
+    UdmCWSController.SetStandardError(StandardError);
 }
 
 Push StandardOccupancy
 {
-    controller.SetStandardOccupancy(1);
+    UdmCWSController.SetStandardOccupancy(1);
 }
 
 Release StandardOccupancy
 {
-    controller.SetStandardOccupancy(0);
+    UdmCWSController.SetStandardOccupancy(0);
 }
 
 Change StandardHelpRequest
 {
-    controller.SetStandardHelpRequest(StandardHelpRequest);
+    UdmCWSController.SetStandardHelpRequest(StandardHelpRequest);
 }
 
 Change StandardActivity
 {
-    controller.SetStandardActivity(StandardActivity);
+    UdmCWSController.SetStandardActivity(StandardActivity);
 }
 
 // Device Properties
@@ -86,49 +86,49 @@ Change DeviceLabel
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetDeviceLabel(index, DeviceLabel[index]);
+    UdmCWSController.SetDeviceLabel(index, DeviceLabel[index]);
 }
 
 Change DeviceStatusText
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetDeviceStatus(index, DeviceStatusText[index]);
+    UdmCWSController.SetDeviceStatus(index, DeviceStatusText[index]);
 }
 
 Change DeviceDescription
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetDeviceDescription(index, DeviceDescription[index]);
+    UdmCWSController.SetDeviceDescription(index, DeviceDescription[index]);
 }
 
 Change DeviceVideoSource
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetDeviceVideoSource(index, DeviceVideoSource[index]);
+    UdmCWSController.SetDeviceVideoSource(index, DeviceVideoSource[index]);
 }
 
 Change DeviceAudioSource
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetDeviceAudioSource(index, DeviceAudioSource[index]);
+    UdmCWSController.SetDeviceAudioSource(index, DeviceAudioSource[index]);
 }
 
 Change DeviceUsage
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetDeviceUsage(index, DeviceUsage[index]);
+    UdmCWSController.SetDeviceUsage(index, DeviceUsage[index]);
 }
 
 Change DeviceError
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetDeviceError(index, DeviceError[index]);
+    UdmCWSController.SetDeviceError(index, DeviceError[index]);
 }
 
 // Custom Properties
@@ -136,13 +136,19 @@ Change PropertyLabel
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetPropertyLabel(index, PropertyLabel[index]);
+    UdmCWSController.SetPropertyLabel(index, PropertyLabel[index]);
 }
 
 Change PropertyValue
 {
     Integer index;
     index = GetLastModifiedArrayIndex();
-    controller.SetPropertyValue(index, PropertyValue[index]);
+    UdmCWSController.SetPropertyValue(index, PropertyValue[index]);
+}
+
+function main()
+{
+    WaitForInitializationComplete();
+    UdmCWSController.Initialize();
 }
 

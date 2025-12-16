@@ -16,25 +16,43 @@ namespace PepperDash.Plugin.UdmCws
         /// <summary>
         /// Gets the singleton instance of UdmCWSController
         /// </summary>
-        public static UdmCWSController Instance => _instance.Value;
+        private static UdmCWSController Instance => _instance.Value;
 
         private State state = new State();
         private readonly object stateLock = new object();
         private UdmCwsServer cwsServer;
         private bool isInitialized = false;
 
-        // Private constructor prevents external instantiation
-        private UdmCWSController()
+        /// <summary>
+        /// Public constructor for SIMPL+ compatibility
+        /// Note: Use Instance property to access the singleton
+        /// </summary>
+        public UdmCWSController()
         {
             cwsServer = new UdmCwsServer();
-            CrestronConsole.PrintLine("UdmCWSController: Singleton instance created");
         }
 
         /// <summary>
-        /// Initialize and start the CWS server
+        /// Initialize and start the CWS server (static method for SIMPL+ compatibility)
         /// Must be called before the server can serve requests
         /// </summary>
-        public void Initialize()
+        public static void Initialize()
+        {
+            Instance.InitializeInstance();
+        }
+
+        /// <summary>
+        /// Stop the CWS server (static method for SIMPL+ compatibility)
+        /// </summary>
+        public static void Shutdown()
+        {
+            Instance.ShutdownInstance();
+        }
+
+        /// <summary>
+        /// Initialize and start the CWS server (instance method)
+        /// </summary>
+        private void InitializeInstance()
         {
             if (isInitialized)
             {
@@ -48,9 +66,9 @@ namespace PepperDash.Plugin.UdmCws
         }
 
         /// <summary>
-        /// Stop the CWS server
+        /// Stop the CWS server (instance method)
         /// </summary>
-        public void Shutdown()
+        private void ShutdownInstance()
         {
             if (!isInitialized)
             {
@@ -71,7 +89,84 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetDeviceLabel(ushort deviceNum, string label)
+        // Static methods for SIMPL+ compatibility
+        public static void SetDeviceLabel(ushort deviceNum, string label)
+        {
+            Instance.SetDeviceLabelInstance(deviceNum, label);
+        }
+
+        public static void SetDeviceStatus(ushort deviceNum, string status)
+        {
+            Instance.SetDeviceStatusInstance(deviceNum, status);
+        }
+
+        public static void SetDeviceDescription(ushort deviceNum, string description)
+        {
+            Instance.SetDeviceDescriptionInstance(deviceNum, description);
+        }
+
+        public static void SetDeviceVideoSource(ushort deviceNum, string videoSource)
+        {
+            Instance.SetDeviceVideoSourceInstance(deviceNum, videoSource);
+        }
+
+        public static void SetDeviceAudioSource(ushort deviceNum, string audioSource)
+        {
+            Instance.SetDeviceAudioSourceInstance(deviceNum, audioSource);
+        }
+
+        public static void SetDeviceUsage(ushort deviceNum, ushort usage)
+        {
+            Instance.SetDeviceUsageInstance(deviceNum, usage);
+        }
+
+        public static void SetDeviceError(ushort deviceNum, string error)
+        {
+            Instance.SetDeviceErrorInstance(deviceNum, error);
+        }
+
+        public static void SetPropertyLabel(ushort propertyNum, string label)
+        {
+            Instance.SetPropertyLabelInstance(propertyNum, label);
+        }
+
+        public static void SetPropertyValue(ushort propertyNum, string value)
+        {
+            Instance.SetPropertyValueInstance(propertyNum, value);
+        }
+
+        public static void SetStandardOccupancy(ushort occupancy)
+        {
+            Instance.SetStandardOccupancyInstance(occupancy);
+        }
+
+        public static void SetStandardError(string error)
+        {
+            Instance.SetStandardErrorInstance(error);
+        }
+
+        public static void SetStandardHelpRequest(string helpRequest)
+        {
+            Instance.SetStandardHelpRequestInstance(helpRequest);
+        }
+
+        public static void SetStandardVersion(string version)
+        {
+            Instance.SetStandardVersionInstance(version);
+        }
+
+        public static void SetStandardActivity(string activity)
+        {
+            Instance.SetStandardActivityInstance(activity);
+        }
+
+        public static void SetStandardState(string standardState)
+        {
+            Instance.SetStandardStateInstance(standardState);
+        }
+
+        // Instance methods (called by static wrappers)
+        private void SetDeviceLabelInstance(ushort deviceNum, string label)
         {
             if (!ValidateDeviceNumber(deviceNum, "SetDeviceLabel"))
                 return;
@@ -82,7 +177,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetDeviceStatus(ushort deviceNum, string status)
+        private void SetDeviceStatusInstance(ushort deviceNum, string status)
         {
             if (!ValidateDeviceNumber(deviceNum, "SetDeviceStatus"))
                 return;
@@ -93,7 +188,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetDeviceDescription(ushort deviceNum, string description)
+        private void SetDeviceDescriptionInstance(ushort deviceNum, string description)
         {
             if (!ValidateDeviceNumber(deviceNum, "SetDeviceDescription"))
                 return;
@@ -104,7 +199,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetDeviceVideoSource(ushort deviceNum, string videoSource)
+        private void SetDeviceVideoSourceInstance(ushort deviceNum, string videoSource)
         {
             if (!ValidateDeviceNumber(deviceNum, "SetDeviceVideoSource"))
                 return;
@@ -115,7 +210,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetDeviceAudioSource(ushort deviceNum, string audioSource)
+        private void SetDeviceAudioSourceInstance(ushort deviceNum, string audioSource)
         {
             if (!ValidateDeviceNumber(deviceNum, "SetDeviceAudioSource"))
                 return;
@@ -126,7 +221,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetDeviceUsage(ushort deviceNum, ushort usage)
+        private void SetDeviceUsageInstance(ushort deviceNum, ushort usage)
         {
             if (!ValidateDeviceNumber(deviceNum, "SetDeviceUsage"))
                 return;
@@ -137,7 +232,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetDeviceError(ushort deviceNum, string error)
+        private void SetDeviceErrorInstance(ushort deviceNum, string error)
         {
             if (!ValidateDeviceNumber(deviceNum, "SetDeviceError"))
                 return;
@@ -148,7 +243,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetPropertyLabel(ushort propertyNum, string label)
+        private void SetPropertyLabelInstance(ushort propertyNum, string label)
         {
             if (!ValidatePropertyNumber(propertyNum, "SetPropertyLabel"))
                 return;
@@ -159,7 +254,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetPropertyValue(ushort propertyNum, string value)
+        private void SetPropertyValueInstance(ushort propertyNum, string value)
         {
             if (!ValidatePropertyNumber(propertyNum, "SetPropertyValue"))
                 return;
@@ -170,7 +265,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetStandardOccupancy(ushort occupancy)
+        private void SetStandardOccupancyInstance(ushort occupancy)
         {
             lock (stateLock)
             {
@@ -178,7 +273,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetStandardError(string error)
+        private void SetStandardErrorInstance(string error)
         {
             lock (stateLock)
             {
@@ -186,7 +281,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetStandardHelpRequest(string helpRequest)
+        private void SetStandardHelpRequestInstance(string helpRequest)
         {
             lock (stateLock)
             {
@@ -194,7 +289,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetStandardVersion(string version)
+        private void SetStandardVersionInstance(string version)
         {
             lock (stateLock)
             {
@@ -202,7 +297,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetStandardActivity(string activity)
+        private void SetStandardActivityInstance(string activity)
         {
             lock (stateLock)
             {
@@ -210,7 +305,7 @@ namespace PepperDash.Plugin.UdmCws
             }
         }
 
-        public void SetStandardState(string standardState)
+        private void SetStandardStateInstance(string standardState)
         {
             lock (stateLock)
             {
