@@ -121,6 +121,8 @@ namespace PepperDash.Plugin.UdmCws
             {
                 CrestronConsole.PrintLine("UdmCwsServer: Program stopping, cleaning up server...");
                 Stop();
+                // Unregister event handler to prevent memory leak
+                CrestronEnvironment.ProgramStatusEventHandler -= ProgramStatusHandler;
             }
         }
 

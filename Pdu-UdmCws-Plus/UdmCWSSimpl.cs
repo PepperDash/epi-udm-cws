@@ -1,4 +1,4 @@
-﻿
+
 
 using Crestron.SimplSharp;
 
@@ -6,7 +6,11 @@ namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCWSController
     {
+        private const int MAX_DEVICES = 20;
+        private const int MAX_PROPERTIES = 20;
+
         private State state = new State();
+        private readonly object stateLock = new object();
         private UdmCwsServer cwsServer;
         private bool isInitialized = false;
 
@@ -44,82 +48,185 @@ namespace PepperDash.Plugin.UdmCws
 
         private State GetState()
         {
-            return state;
+            lock (stateLock)
+            {
+                return state;
+            }
         }
+
         public void SetDeviceLabel(ushort deviceNum, string label)
         {
-            state.Status.Devices[$"device{deviceNum}"].Label = label;
+            if (!ValidateDeviceNumber(deviceNum, "SetDeviceLabel"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Status.Devices[$"device{deviceNum}"].Label = label ?? string.Empty;
+            }
         }
 
         public void SetDeviceStatus(ushort deviceNum, string status)
         {
-            state.Status.Devices[$"device{deviceNum}"].Status = status;
+            if (!ValidateDeviceNumber(deviceNum, "SetDeviceStatus"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Status.Devices[$"device{deviceNum}"].Status = status ?? string.Empty;
+            }
         }
 
         public void SetDeviceDescription(ushort deviceNum, string description)
         {
-            state.Status.Devices[$"device{deviceNum}"].Description = description;
+            if (!ValidateDeviceNumber(deviceNum, "SetDeviceDescription"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Status.Devices[$"device{deviceNum}"].Description = description ?? string.Empty;
+            }
         }
 
         public void SetDeviceVideoSource(ushort deviceNum, string videoSource)
         {
-            state.Status.Devices[$"device{deviceNum}"].VideoSource = videoSource;
+            if (!ValidateDeviceNumber(deviceNum, "SetDeviceVideoSource"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Status.Devices[$"device{deviceNum}"].VideoSource = videoSource ?? string.Empty;
+            }
         }
 
         public void SetDeviceAudioSource(ushort deviceNum, string audioSource)
         {
-            state.Status.Devices[$"device{deviceNum}"].AudioSource = audioSource;
+            if (!ValidateDeviceNumber(deviceNum, "SetDeviceAudioSource"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Status.Devices[$"device{deviceNum}"].AudioSource = audioSource ?? string.Empty;
+            }
         }
 
         public void SetDeviceUsage(ushort deviceNum, ushort usage)
         {
-            state.Status.Devices[$"device{deviceNum}"].Usage = usage;
+            if (!ValidateDeviceNumber(deviceNum, "SetDeviceUsage"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Status.Devices[$"device{deviceNum}"].Usage = usage;
+            }
         }
 
         public void SetDeviceError(ushort deviceNum, string error)
         {
-            state.Status.Devices[$"device{deviceNum}"].Error = error;
+            if (!ValidateDeviceNumber(deviceNum, "SetDeviceError"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Status.Devices[$"device{deviceNum}"].Error = error ?? string.Empty;
+            }
         }
 
         public void SetPropertyLabel(ushort propertyNum, string label)
         {
-            state.Custom[$"property{propertyNum}"].Label = label;
+            if (!ValidatePropertyNumber(propertyNum, "SetPropertyLabel"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Custom[$"property{propertyNum}"].Label = label ?? string.Empty;
+            }
         }
 
         public void SetPropertyValue(ushort propertyNum, string value)
         {
-            state.Custom[$"property{propertyNum}"].Value = value;
+            if (!ValidatePropertyNumber(propertyNum, "SetPropertyValue"))
+                return;
+
+            lock (stateLock)
+            {
+                state.Custom[$"property{propertyNum}"].Value = value ?? string.Empty;
+            }
         }
 
         public void SetStandardOccupancy(ushort occupancy)
         {
-            state.Standard.Occupancy = occupancy == 1;
+            lock (stateLock)
+            {
+                state.Standard.Occupancy = occupancy == 1;
+            }
         }
 
         public void SetStandardError(string error)
         {
-            state.Standard.Error = error;
+            lock (stateLock)
+            {
+                state.Standard.Error = error ?? string.Empty;
+            }
         }
 
-        public void SetStandardHelpRequest(string helpRequest) 
+        public void SetStandardHelpRequest(string helpRequest)
         {
-            state.Standard.HelpRequest = helpRequest;
+            lock (stateLock)
+            {
+                state.Standard.HelpRequest = helpRequest ?? string.Empty;
+            }
         }
 
         public void SetStandardVersion(string version)
         {
-            state.Standard.Version = version;
+            lock (stateLock)
+            {
+                state.Standard.Version = version ?? string.Empty;
+            }
         }
 
         public void SetStandardActivity(string activity)
         {
-            state.Standard.Activity = activity;
+            lock (stateLock)
+            {
+                state.Standard.Activity = activity ?? string.Empty;
+            }
         }
 
         public void SetStandardState(string standardState)
         {
-            state.Standard.State = standardState;
+            lock (stateLock)
+            {
+                state.Standard.State = standardState ?? string.Empty;
+            }
         }
 
+        /// <summary>
+        /// Validates device number is within valid range
+        /// </summary>
+        private bool ValidateDeviceNumber(ushort deviceNum, string methodName)
+        {
+            if (deviceNum < 1 || deviceNum > MAX_DEVICES)
+            {
+                CrestronConsole.PrintLine("UdmCWSController.{0}: Invalid device number {1} (valid range: 1-{2})",
+                    methodName, deviceNum, MAX_DEVICES);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Validates property number is within valid range
+        /// </summary>
+        private bool ValidatePropertyNumber(ushort propertyNum, string methodName)
+        {
+            if (propertyNum < 1 || propertyNum > MAX_PROPERTIES)
+            {
+                CrestronConsole.PrintLine("UdmCWSController.{0}: Invalid property number {1} (valid range: 1-{2})",
+                    methodName, propertyNum, MAX_PROPERTIES);
+                return false;
+            }
+            return true;
+        }
     }
 }
