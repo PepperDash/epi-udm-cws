@@ -43,6 +43,12 @@ namespace PepperDash.Plugin.UdmCws
             context.Response.End();
         }
 
+        protected override void HandlePatch(HttpCwsContext context)
+        {
+            //
+
+        }
+
         
     }
 }

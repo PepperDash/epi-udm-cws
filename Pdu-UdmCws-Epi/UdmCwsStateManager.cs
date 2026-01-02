@@ -12,15 +12,30 @@ using System.Threading.Tasks;
 namespace PepperDash.Plugin.UdmCws
 {
     public class UdmCwsStateManager : EssentialsDevice
-    {       
-        public State State { get; private set; } = MockState.GetMockState();
+    {
+        //create an event to notify when state changes
+        private State _state;
+
+        public void UpdateState(State newState) //this will get called when the state is updated from the device
+        {
+            _state = newState;
+        }
+
+        public void PatchRequested(State desiredState) //this will get called when a PATCH is made to the web api -ie., from setDesired
+        {
+            //fire an event to notify listeners that the state has changed
+            //the consumers will need to handle the desired state change
+
+        }
+
+
         public UdmCwsStateManager(string key) : base(key)
         {            
             AddPreActivationAction(AddWebApiPaths);
         }
 
 
-        public State GetRoomResponse => State;
+        public State GetRoomResponse => _state; //should this be public????
 
         private void AddWebApiPaths()
         {
