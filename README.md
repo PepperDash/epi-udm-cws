@@ -262,3 +262,69 @@ The selection below documents the digital, analog, and serial joins used by the 
 |                           | 4   |                     |
 |                           | 5   |                     |
 
+<!-- START Minimum Essentials Framework Versions -->
+### Minimum Essentials Framework Versions
+
+- 1.6.5
+<!-- END Minimum Essentials Framework Versions -->
+<!-- START Supported Types -->
+### Supported Types
+
+- examplePluginDevice
+- examplePluginLogicDevice
+- examplePluginCrestronDevice
+<!-- END Supported Types -->
+<!-- START Join Maps -->
+### Join Maps
+
+#### Digitals
+
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Is Online |
+
+#### Analogs
+
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Socket SocketStatus |
+| 2 | R | Monitor Status |
+
+#### Serials
+
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Device Name |
+<!-- END Join Maps -->
+<!-- START Interfaces Implemented -->
+
+<!-- END Interfaces Implemented -->
+<!-- START Base Classes -->
+### Base Classes
+
+- EssentialsBridgeableDevice
+- CrestronGenericBridgeableBaseDevice
+- JoinMapBaseAdvanced
+<!-- END Base Classes -->
+<!-- START Public Methods -->
+### Public Methods
+
+- public void SendText(string text)
+- public void SendBytes(byte[] bytes)
+- public void Poll()
+<!-- END Public Methods -->
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- ConnectFeedback
+- OnlineFeedback
+<!-- END Bool Feedbacks -->
+<!-- START Int Feedbacks -->
+### Int Feedbacks
+
+- SocketStatusFeedback
+- MonitorStatusFeedback
+<!-- END Int Feedbacks -->
+<!-- START String Feedbacks -->
+
+<!-- END String Feedbacks -->
