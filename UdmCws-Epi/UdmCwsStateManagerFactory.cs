@@ -95,7 +95,7 @@ namespace PepperDash.Plugin.UdmCws
 
             // Log configuration summary
             Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: API Version: {ApiVersion}", dc.Key, configuration.ApiVersion);
-            Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: PSK Configured: {PskConfigured}", dc.Key, !string.IsNullOrEmpty(configuration.Psk));
+            Debug.LogMessage(LogEventLevel.Debug, "[{Key}] Factory: PSK Configured: {PskConfigured}", dc.Key, !string.IsNullOrEmpty(configuration.Psk));
             Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Route Prefix: {RoutePrefix}", dc.Key,
                 string.IsNullOrEmpty(configuration.RoutePrefix) ? "(default)" : configuration.RoutePrefix);
             Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Device mappings: {Count}", dc.Key, configuration.DeviceMappings.Count);
