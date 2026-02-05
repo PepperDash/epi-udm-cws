@@ -1,0 +1,427 @@
+openapi: 3.1.0
+info:
+  title: Device Monitoring API
+  description: PepperDash Unified Device Management device monitoring API
+  version: 1.0.0
+tags: []
+paths:
+  /api/roomstatus:
+    get:
+      summary: Room Status
+      deprecated: false
+      description: >-
+        http only
+
+        portal custom settings property available for path prefix (crestron
+        /cws)
+
+        portal custom settings property for pre-shared key (psk) option ??
+      tags: []
+      parameters:
+        - name: psk
+          in: query
+          description: >-
+            OPTIONAL: PepperDash UDM Device Monitoring can send pre-shared key
+            to be validated by device server
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response%20Room%20Status'
+          headers: {}
+          x-apidog-name: Success
+          x-apidog-ordering: 0
+        '403':
+          $ref: '#/components/responses/403 PSK Match Error'
+          description: ''
+          x-apidog-ordering: 1
+      security: []
+      x-apidog-folder: ''
+      x-apidog-status: released
+      x-apidog-maintainer: Josh G
+      x-run-in-apidog: https://app.apidog.com/web/project/1144515/apis/api-25167892-run
+    patch:
+      summary: Room Status
+      deprecated: false
+      description: >-
+        http only
+
+        portal custom settings property available for path prefix (crestron
+        /cws)
+
+        portal custom settings property for pre-shared key (psk) option ??
+
+        LIMITED SET PROPERTIES: "state", "activity"
+      tags: []
+      parameters:
+        - name: psk
+          in: query
+          description: >-
+            OPTIONAL: PepperDash UDM Device Monitoring can send pre-shared key
+            to be validated by device server
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-apidog-refs:
+                01KFC2XBKYXCDMB51Y20VHMZ4M:
+                  $ref: '#/components/schemas/Room%20Status%20Patch%20Body'
+                  x-apidog-overrides: {}
+              properties:
+                standard:
+                  $ref: '#/components/schemas/Standard%20Properties%20Write'
+                apiVersion:
+                  type: string
+              x-apidog-orders:
+                - 01KFC2XBKYXCDMB51Y20VHMZ4M
+              required:
+                - standard
+                - apiVersion
+              x-apidog-ignore-properties:
+                - standard
+                - apiVersion
+            examples: {}
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response%20Room%20Status'
+          headers: {}
+          x-apidog-name: Success
+          x-apidog-ordering: 0
+        '403':
+          $ref: '#/components/responses/403 PSK Match Error'
+          description: ''
+          x-apidog-ordering: 1
+      security: []
+      x-apidog-folder: ''
+      x-apidog-status: released
+      x-apidog-maintainer: Josh G
+      x-run-in-apidog: https://app.apidog.com/web/project/1144515/apis/api-25168383-run
+webhooks: {}
+components:
+  schemas:
+    Property:
+      type: object
+      properties:
+        label:
+          type: string
+          description: Property label or descriptor for value (Property 1 Label)
+        value:
+          type: string
+          description: Value of Named Property (Property 1 Value)
+      x-apidog-orders:
+        - label
+        - value
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Device Status Properties:
+      type: object
+      properties:
+        label:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+        videoSource:
+          type: string
+        audioSource:
+          type: string
+        usage:
+          type: number
+        error:
+          type: string
+      x-apidog-orders:
+        - label
+        - status
+        - description
+        - videoSource
+        - audioSource
+        - usage
+        - error
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Call Properties:
+      type: object
+      properties:
+        state:
+          type: string
+        usage:
+          type: number
+      x-apidog-orders:
+        - state
+        - usage
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Custom Properties:
+      type: object
+      properties:
+        property1:
+          $ref: '#/components/schemas/Property'
+        property2:
+          $ref: '#/components/schemas/Property'
+        property3:
+          $ref: '#/components/schemas/Property'
+        property4:
+          $ref: '#/components/schemas/Property'
+        property5:
+          $ref: '#/components/schemas/Property'
+        property6:
+          $ref: '#/components/schemas/Property'
+        property7:
+          $ref: '#/components/schemas/Property'
+        property8:
+          $ref: '#/components/schemas/Property'
+        property9:
+          $ref: '#/components/schemas/Property'
+        property10:
+          $ref: '#/components/schemas/Property'
+        property11:
+          $ref: '#/components/schemas/Property'
+        property12:
+          $ref: '#/components/schemas/Property'
+        property13:
+          $ref: '#/components/schemas/Property'
+        property14:
+          $ref: '#/components/schemas/Property'
+        property15:
+          $ref: '#/components/schemas/Property'
+        property16:
+          $ref: '#/components/schemas/Property'
+        property17:
+          $ref: '#/components/schemas/Property'
+        property18:
+          $ref: '#/components/schemas/Property'
+        property19:
+          $ref: '#/components/schemas/Property'
+        property20:
+          $ref: '#/components/schemas/Property'
+      x-apidog-orders:
+        - property1
+        - property2
+        - property3
+        - property4
+        - property5
+        - property6
+        - property7
+        - property8
+        - property9
+        - property10
+        - property11
+        - property12
+        - property13
+        - property14
+        - property15
+        - property16
+        - property17
+        - property18
+        - property19
+        - property20
+      x-apidog-refs: {}
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Standard Properties:
+      type: object
+      properties:
+        version:
+          type: string
+        state:
+          type: string
+          x-apidog-mock: NewState
+        error:
+          type: string
+        occupancy:
+          type: boolean
+        helpRequest:
+          type: string
+        activity:
+          type: string
+          x-apidog-mock: NewActivity
+      x-apidog-orders:
+        - version
+        - state
+        - error
+        - occupancy
+        - helpRequest
+        - activity
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Standard Properties Write:
+      type: object
+      properties:
+        state:
+          type: string
+          x-apidog-mock: NewState
+        activity:
+          type: string
+          x-apidog-mock: NewActivity
+      x-apidog-orders:
+        - state
+        - activity
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Device Status:
+      type: object
+      properties:
+        device1:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device2:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device3:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device4:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device5:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device6:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device7:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device8:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device9:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device10:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device11:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device12:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device13:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device14:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device15:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device16:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device17:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device18:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device19:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device20:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+      x-apidog-orders:
+        - device1
+        - device2
+        - device3
+        - device4
+        - device5
+        - device6
+        - device7
+        - device8
+        - device9
+        - device10
+        - device11
+        - device12
+        - device13
+        - device14
+        - device15
+        - device16
+        - device17
+        - device18
+        - device19
+        - device20
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Display Status:
+      type: object
+      properties:
+        device1:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device2:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device3:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device4:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+        device5:
+          $ref: '#/components/schemas/Device%20Status%20Properties'
+      x-apidog-orders:
+        - device1
+        - device2
+        - device3
+        - device4
+        - device5
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Response Room Status:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          description: PepperDash UDM Device Monitoring API version
+        standard:
+          $ref: '#/components/schemas/Standard%20Properties'
+        status:
+          type: object
+          properties:
+            devices:
+              $ref: '#/components/schemas/Device%20Status'
+          x-apidog-orders:
+            - devices
+          x-apidog-ignore-properties: []
+        custom:
+          $ref: '#/components/schemas/Custom%20Properties'
+      x-apidog-orders:
+        - apiVersion
+        - standard
+        - status
+        - custom
+      x-apidog-refs: {}
+      required:
+        - apiVersion
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+    Room Status Patch Body:
+      type: object
+      properties:
+        standard:
+          $ref: '#/components/schemas/Standard%20Properties%20Write'
+        apiVersion:
+          type: string
+      x-apidog-orders:
+        - standard
+        - apiVersion
+      required:
+        - standard
+        - apiVersion
+      x-apidog-ignore-properties: []
+      x-apidog-folder: ''
+  responses:
+    403 PSK Match Error:
+      description: ''
+      content:
+        application/json:
+          schema:
+            title: ''
+            type: object
+            properties:
+              pskMatchError:
+                type: boolean
+              error:
+                type: string
+            x-apidog-orders:
+              - pskMatchError
+              - error
+            required:
+              - pskMatchError
+              - error
+  securitySchemes: {}
+servers: []
+security: []

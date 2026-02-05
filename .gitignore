@@ -360,3 +360,13 @@ MigrationBackup/
 # VS Code settings folders
 .vscode/
 *.projectinfo
+*.inf
+
+# SIMPL+ work folder
+SIMPL/SPlsWork/
+UdmCws-Plus/UdmCWSSimpl.cs
+.claude/settings.local.json
+*.html
+output/
+.DS_Store
+Thumbs.db

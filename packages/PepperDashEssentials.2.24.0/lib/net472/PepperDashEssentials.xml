@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PepperDashEssentials</name>
+    </assembly>
+    <members>
+        <member name="T:PepperDash.Essentials.ControlSystem">
+            <summary>
+            Main control system class that inherits from CrestronControlSystem and manages program lifecycle
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.#ctor">
+            <summary>
+            Initializes a new instance of the ControlSystem class
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.InitializeSystem">
+            <summary>
+            InitializeSystem method
+            </summary>
+            <inheritdoc />
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.DeterminePlatform">
+            <summary>
+            DeterminePlatform method
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.GoWithLoad">
+            <summary>
+            GoWithLoad method
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.SetupFilesystem">
+            <summary>
+            Verifies filesystem is set up. IR, SGD, and programX folders
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.TearDown">
+            <summary>
+            TearDown method
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.Load">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.LoadDevices">
+            <summary>
+            LoadDevices method
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.LoadTieLines">
+            <summary>
+            LoadTieLines method
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.LoadRooms">
+            <summary>
+            LoadRooms method
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.ControlSystem.LoadLogoServer">
+            <summary>
+            Fires up a logo server if not already running
+            </summary>
+        </member>
+        <member name="T:PepperDash.Essentials.DeviceFactory">
+            <summary>
+            Responsible for loading all of the device types for this library
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.DeviceFactory.#ctor">
+            <summary>
+            Initializes a new instance of the DeviceFactory class and loads all device type factories
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.DeviceFactory.LoadDeviceFactories(PepperDash.Essentials.Core.IDeviceFactory)">
+            <summary>
+            Loads device factories from the specified plugin device factory and registers them for use.
+            </summary>
+            <remarks>This method retrieves metadata from the provided <paramref name="deviceFactory"/>, including
+            type names, descriptions, and configuration snippets, and registers the factory for each device type. The type
+            names are converted to lowercase for registration.</remarks>
+            <param name="deviceFactory">The plugin device factory that provides the device types, descriptions, and factory methods to be registered.</param>
+        </member>
+        <member name="T:PepperDash.Essentials.HttpLogoServer">
+            <summary>
+            HTTP server for serving logo images and files
+            </summary>
+        </member>
+        <member name="F:PepperDash.Essentials.HttpLogoServer._server">
+            <summary>
+            The HTTP server instance
+            </summary>
+        </member>
+        <member name="F:PepperDash.Essentials.HttpLogoServer._fileDirectory">
+            <summary>
+            The directory containing files to serve
+            </summary>
+        </member>
+        <member name="F:PepperDash.Essentials.HttpLogoServer.ExtensionContentTypes">
+            <summary>
+            Dictionary mapping file extensions to content types
+            </summary>
+        </member>
+        <member name="M:PepperDash.Essentials.HttpLogoServer.#ctor(System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the HttpLogoServer class
+            </summary>
+            <param name="port">Port number for the HTTP server</param>
+            <param name="directory">Directory containing files to serve</param>
+        </member>
+        <member name="M:PepperDash.Essentials.HttpLogoServer.Server_OnHttpRequest(System.Object,Crestron.SimplSharp.Net.Http.OnHttpRequestArgs)">
+            <summary>
+            Handles incoming HTTP requests and serves files from the configured directory
+            </summary>
+            <param name="sender">The HTTP server instance</param>
+            <param name="args">HTTP request arguments</param>
+        </member>
+        <member name="M:PepperDash.Essentials.HttpLogoServer.CrestronEnvironment_ProgramStatusEventHandler(Crestron.SimplSharp.eProgramStatusEventType)">
+            <summary>
+            Handles program status events and closes the server when the program is stopping
+            </summary>
+            <param name="programEventType">The program status event type</param>
+        </member>
+        <member name="M:PepperDash.Essentials.HttpLogoServer.GetContentType(System.String)">
+            <summary>
+            Gets the content type for a file based on its extension
+            </summary>
+            <param name="extension">The file extension</param>
+            <returns>The corresponding content type string</returns>
+            <summary>
+            GetContentType method
+            </summary>
+        </member>
+    </members>
+</doc>
