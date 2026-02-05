@@ -381,8 +381,12 @@
   ParamCue1=[Reference Name]
   ParamCue2=RoutePrefix
   ParamSigType2=String
-  ParamCue3=iFeedbackMode,0d,1d
-  ParamSigType3=List
+  ParamCue3=ApiVersion
+  ParamSigType3=String
+  ParamCue4=Psk
+  ParamSigType4=String
+  ParamCue5=iFeedbackMode,0d,1d
+  ParamSigType5=List
   MinVariableInputs=5
   MaxVariableInputs=5
   MinVariableInputsList2=185
@@ -391,8 +395,8 @@
   MaxVariableOutputs=5
   MinVariableOutputsList2=2
   MaxVariableOutputsList2=2
-  MinVariableParams=2
-  MaxVariableParams=2
+  MinVariableParams=4
+  MaxVariableParams=4
   Expand=expand_separately
   Expand2=expand_separately
   ProgramTree=Logic
@@ -409,7 +413,9 @@
   Pp1=1
   Pp2=2
   Pp3=3
-  MPp=3
+  Pp4=4
+  Pp5=5
+  MPp=5
   NVStorage=10
   ParamSigType1=String
   SmplCInputCue1=o#
@@ -439,6 +445,22 @@
 [BEGIN]
   ObjTp=Dp
   H=3
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=5
   Tp=1
   HD=True
   DV=0d

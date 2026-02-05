@@ -141,18 +141,11 @@ namespace PepperDash.Plugin.UdmCws.Epi.Reflection
         }
 
         /// <summary>
-        /// Sets activity by invoking the mapped function
+        /// Sets activity by invoking the mapped function or fallback SetActivity method
         /// </summary>
         public void SetActivity(ActivityMapping mapping, string desiredActivity)
         {
-            if (mapping?.SetFunctions == null || !mapping.SetFunctions.ContainsKey(desiredActivity))
-            {
-                Debug.LogMessage(LogEventLevel.Warning,
-                    "ConfigurablePropertyHandler: No set function configured for activity: {Activity}", desiredActivity);
-                return;
-            }
-
-            var setDeviceKey = mapping.SetDeviceKey ?? mapping.GetProperty?.DeviceKey;
+            var setDeviceKey = mapping?.SetDeviceKey ?? mapping?.GetProperty?.DeviceKey;
             if (string.IsNullOrEmpty(setDeviceKey))
             {
                 Debug.LogMessage(LogEventLevel.Error, "ConfigurablePropertyHandler: No device key for activity set");
@@ -167,8 +160,36 @@ namespace PepperDash.Plugin.UdmCws.Epi.Reflection
                 return;
             }
 
-            var cacheKey = $"activity_set_{desiredActivity}";
-            _accessor.InvokeMethod(cacheKey, device);
+            // Try configured setFunctions first
+            if (mapping?.SetFunctions != null && mapping.SetFunctions.ContainsKey(desiredActivity))
+            {
+                var cacheKey = $"activity_set_{desiredActivity}";
+                _accessor.InvokeMethod(cacheKey, device);
+                Debug.LogMessage(LogEventLevel.Information,
+                    "ConfigurablePropertyHandler: Activity set via configured function: {Activity}", desiredActivity);
+                return;
+            }
+
+            // Fallback: Try calling SetActivity(string) method directly (for testing/simple cases)
+            try
+            {
+                var setActivityMethod = device.GetType().GetMethod("SetActivity", new[] { typeof(string) });
+                if (setActivityMethod != null)
+                {
+                    setActivityMethod.Invoke(device, new object[] { desiredActivity });
+                    Debug.LogMessage(LogEventLevel.Information,
+                        "ConfigurablePropertyHandler: Activity set via fallback SetActivity method: {Activity}", desiredActivity);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogMessage(LogEventLevel.Error,
+                    "ConfigurablePropertyHandler: Error invoking SetActivity method: {Message}", ex.Message);
+            }
+
+            Debug.LogMessage(LogEventLevel.Warning,
+                "ConfigurablePropertyHandler: No set function or SetActivity method found for activity: {Activity}", desiredActivity);
         }
     }
 }

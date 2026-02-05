@@ -154,7 +154,8 @@
               "getProperty": {
                 "deviceKey": "mock-room-1",
                 "propertyPath": "Activity"
-              }
+              },
+              "setDeviceKey": "mock-room-1"
             },
             "helpRequestMapping": {
               "deviceKey": "mock-room-1",
