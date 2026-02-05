@@ -262,19 +262,21 @@ namespace PepperDash.Plugin.UdmCws
                 // PSK is configured, so we require it in the request
                 if (!pskInRequest)
                 {
-                    CrestronConsole.PrintLine("UdmCwsActionPathsHandler: PSK validation failed - PSK required but not provided");
-                    SendErrorResponse(context, 401, "Pre-shared key required but not provided");
+                    CrestronConsole.PrintLine("UdmCwsActionPathsHandler: Authentication failed");
+                    ErrorLog.Error("UdmCwsActionPathsHandler: PSK validation failed - PSK required but not provided");
+                    SendErrorResponse(context, 401, "Authentication failed");
                     return false;
                 }
 
                 if (requestPsk != Config.Psk)
                 {
-                    CrestronConsole.PrintLine("UdmCwsActionPathsHandler: PSK validation failed - Invalid PSK");
-                    SendErrorResponse(context, 401, "Invalid pre-shared key");
+                    CrestronConsole.PrintLine("UdmCwsActionPathsHandler: Authentication failed");
+                    ErrorLog.Error("UdmCwsActionPathsHandler: PSK validation failed - Invalid PSK");
+                    SendErrorResponse(context, 401, "Authentication failed");
                     return false;
                 }
 
-                CrestronConsole.PrintLine("UdmCwsActionPathsHandler: PSK validation passed");
+                CrestronConsole.PrintLine("UdmCwsActionPathsHandler: Authentication succeeded");
             }
             else
             {
