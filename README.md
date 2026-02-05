@@ -4,13 +4,15 @@
 
 A standardized REST API for monitoring and controlling room devices in PepperDash Essentials. UDM-CWS provides a vendor-neutral API that enables unified device management across different room types and configurations.
 
+**api reference: <https://portal.cloud.pepperdash.com/apidocs/udm/driver>**
+
 ## Table of Contents
 
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Installation](#installation)
   - [Essentials Plugin (EPI)](#essentials-plugin-epi)
-  - [SIMPL+ Modules](#simpl-modules)
+  - [SIMPL Plus Module](#simpl-plus-module)
   - [Core Library](#core-library)
 - [Configuration](#configuration)
 - [API Reference](#api-reference)
@@ -94,6 +96,7 @@ curl -X PATCH http://<processor-ip>/app01/udmcws/roomstatus \
 The Essentials Plugin integrates with PepperDash Essentials and provides full UDM-CWS functionality.
 
 **Requirements:**
+
 - PepperDash Essentials 2.24.0+
 - .NET Framework 4.7.2
 
@@ -105,23 +108,26 @@ The Essentials Plugin integrates with PepperDash Essentials and provides full UD
 4. Restart Essentials application
 
 **Endpoints:**
+
 - GET `/app01/udmcws/roomstatus` - Get current room and device status
 - PATCH `/app01/udmcws/roomstatus` - Update room state (on/off)
 
-### SIMPL+ Module
+### SIMPL Plus Module
 
 A single SIMPL+ module provides signal-based integration for SIMPL Windows programs.
 
 **Module:**
+
 - **UdmCws.usp** - All-in-one module handling status, control, and property mapping
 
 **Requirements:**
+
 - SIMPL Windows (for compilation)
 - UdmCws-Epi.cplz (deployed to processor)
 
 **Key Signals:**
 
-```
+```plus
 // Parameters
 STRING_PARAMETER RoutePrefix[50];    // Optional for multi-room
 INTEGER_PARAMETER iFeedbackMode;     // 0=Deferred, 1=Immediate
@@ -150,16 +156,19 @@ See [UdmCws-Plus/UdmCws.usp](UdmCws-Plus/UdmCws.usp) for complete signal referen
 The core library (`UdmCws-Lib`) provides framework-agnostic models and interfaces.
 
 **Use Cases:**
+
 - Building custom integrations
 - Creating alternative transport layers
 - Unit testing
 
 **NuGet Package:**
+
 ```bash
 dotnet add package UdmCws-Lib
 ```
 
 **Key Components:**
+
 - **Models** - State, DeviceStatus, StandardProperties, CustomProperties
 - **Interfaces** - Event system for state changes
 - **Configuration** - PropertyMapping, DeviceMapping, UdmCwsConfiguration
@@ -261,7 +270,7 @@ Complete configuration with all optional features:
 ### Configuration Properties
 
 | Property | Type | Required | Description |
-|----------|------|----------|-------------|
+| ---------- | ------ | ---------- | ------------- |
 | `apiVersion` | string | No | API version (default: "1.0.0") |
 | `feedbackMode` | string | No | "deferred" (202) or "immediate" (200) |
 | `routePrefix` | string | No | Route prefix for multi-room (e.g., "room1") |
@@ -271,7 +280,7 @@ Complete configuration with all optional features:
 #### Device Mapping
 
 | Property | Type | Required | Description |
-|----------|------|----------|-------------|
+| ---------- | ------ | ---------- | ------------- |
 | `deviceKey` | string | Yes | Essentials device key |
 | `deviceIndex` | number | Yes | Device number (1-20) |
 | `customLabel` | string | No | Display name (defaults to device key) |
@@ -280,7 +289,7 @@ Complete configuration with all optional features:
 #### Standard Properties
 
 | Property | Type | Required | Description |
-|----------|------|----------|-------------|
+| ---------- | ------ | ---------- | ------------- |
 | `roomDeviceKey` | string | Yes* | Room device key (IEssentialsRoom) |
 | `occupancyDeviceKey` | string | No | Occupancy sensor key |
 | `activityMapping` | object | No | Activity property mapping |
@@ -293,72 +302,10 @@ Complete configuration with all optional features:
 
 ## API Reference
 
-### GET /roomstatus
-
-Get current room and device status.
-
-**Response:**
-
-```json
-{
-  "apiVersion": "1.0.0",
-  "standard": {
-    "version": "1.0.0",
-    "state": "On",
-    "error": "",
-    "occupancy": true,
-    "helpRequest": "",
-    "activity": "idle"
-  },
-  "status": {
-    "devices": {
-      "device1": {
-        "label": "Video Codec",
-        "status": "On",
-        "description": "Main room codec",
-        "videoSource": "HDMI 1",
-        "audioSource": "HDMI 1",
-        "usage": 45,
-        "error": null
-      }
-    }
-  },
-  "custom": {
-    "property1": {
-      "label": "Codec In Call",
-      "value": "true"
-    }
-  }
-}
-```
-
-### PATCH /roomstatus
-
-Update room state.
-
-**Request:**
-
-```json
-{
-  "apiVersion": "1.0.0",
-  "standard": {
-    "state": "on"
-  }
-}
-```
-
-**Response:**
-
-```json
-{
-  "apiVersion": "1.0.0",
-  "standard": {
-    "state": "on"
-  }
-}
-```
+<https://portal.cloud.pepperdash.com/apidocs/udm/driver>
 
 **Behavior:**
+
 - `"state": "on"` → Calls `IEssentialsRoom.PowerOnToDefaultOrLastSource()`
 - `"state": "off"` → Calls `IEssentialsRoom.Shutdown()`
 
@@ -368,7 +315,7 @@ The room itself manages which devices to power on/off.
 
 When using route prefixes:
 
-```
+```REST
 GET  /app01/udmcws/room1/roomstatus
 PATCH /app01/udmcws/room1/roomstatus
 
@@ -385,18 +332,18 @@ UDM-CWS automatically populates device properties by detecting Essentials interf
 ### Device Properties
 
 | Property | Auto-Detection | Description |
-|----------|---------------|-------------|
+| ---------- | --------------- | ------------- |
 | **label** | Config or `device.Key` | Device display name |
-| **status** | `IHasPowerControlWithFeedback`<br>`IWarmingCooling`<br>`VideoCodecBase.IsInCall` | On/Off/Warming/Cooling/In Call |
+| **status** | `IHasPowerControlWithFeedback`  `IWarmingCooling`  `VideoCodecBase.IsInCall` | On/Off/Warming/Cooling/In Call |
 | **description** | Config only | User-provided description |
-| **usage** | `IUsageTracking`<br>`IDisplayUsage` | Session minutes or lamp hours |
-| **error** | `ICommunicationMonitor`<br>`IOnline` | Communication status |
-| **videoSource**<br>**audioSource** | `IRoutingSink.CurrentSourceInfo` | Current routing source |
+| **usage** | `IUsageTracking`  `IDisplayUsage` | Session minutes or lamp hours |
+| **error** | `ICommunicationMonitor`  `IOnline` | Communication status |
+| **videoSource** **audioSource** | `IRoutingSink.CurrentSourceInfo` | Current routing source |
 
 ### Room Properties
 
 | Property | Auto-Detection | Description |
-|----------|---------------|-------------|
+| ---------- | --------------- | ------------- |
 | **state** | `IEssentialsRoom.OnFeedback` | Room power state (On/Off) |
 | **occupancy** | `IOccupancyStatusProvider` | Room occupancy status |
 | **activity** | Optional property mapping | Current activity (call/presentation/idle) |
@@ -473,16 +420,19 @@ Map any device property to custom properties using reflection:
 ```
 
 **Property Path Format:**
+
 - Simple: `"IsInCall"` (boolean property)
 - Nested: `"RoomIsOccupiedFeedback.BoolValue"` (feedback object property)
 - Deep: `"CurrentSourceInfo.Name"` (multiple levels)
 
 **Value Transformation:**
+
 - `valueMap` - Map raw values to display values
 - `format` - String format pattern (e.g., `"{0}°F"`)
 - `defaultValue` - Value if property not found or null
 
 **Performance:**
+
 - Property accessors are compiled once at startup using reflection
 - Lazy compilation on first access (handles device loading order)
 - Cached delegates for fast access (~0.1ms per property)
@@ -519,15 +469,18 @@ Map room activity with both get (read) and set (write) operations:
 The repository includes comprehensive mock plugins for testing without hardware:
 
 **UdmCws-Test-Room-Epi** - Mock room with:
+
 - 20 configurable custom properties
 - Activity and help request support
 - Device power control
 
 **UdmCws-Test-Occ-Epi** - Mock occupancy sensor with:
+
 - Auto-toggle every 30 seconds
 - Manual control
 
 **UdmCws-Test-Device-Epi** - Mock device with:
+
 - Power control (with 2s warming/cooling simulation)
 - Usage tracking
 - Communication monitoring
@@ -570,6 +523,7 @@ dotnet build UdmCws-Test-Device-Epi/UdmCws-Test-Device-Epi.csproj --configuratio
 ### Output Files
 
 Build artifacts are generated in `output/`:
+
 - `UdmCws-Epi.1.0.0-local.cplz` - Essentials plugin
 - `UdmCws-Test-Room-Epi.1.0.0-local.cplz` - Mock room plugin
 - `UdmCws-Test-Occ-Epi.1.0.0-local.cplz` - Mock occupancy plugin
@@ -605,9 +559,11 @@ This project is licensed under the MIT License - see [LICENSE.md](LICENSE.md) fo
 ## Supported Types
 
 **Production:**
+
 - `udmcws` - UDM-CWS Essentials Plugin
 
 **Testing:**
+
 - `mockroom` - Mock Room Plugin
 - `mockoccupancy` - Mock Occupancy Sensor
 - `mockdevice` - Mock Device
