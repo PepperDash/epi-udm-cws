@@ -120,6 +120,7 @@
         "properties": {
           "apiVersion": "1.0.0",
           "feedbackMode": "deferred",
+          "//routePrefix": "room1",
           "deviceMappings": [
             {
               "deviceKey": "codec-1",
