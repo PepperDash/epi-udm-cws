@@ -26,9 +26,21 @@ namespace PepperDash.Plugin.UdmCws
         /// </summary>
         public FeedbackMode FeedbackMode { get; set; }
 
+        /// <summary>
+        /// API version for version validation
+        /// </summary>
+        public string ApiVersion { get; set; }
+
+        /// <summary>
+        /// Pre-shared key for request validation (empty or null = no PSK validation)
+        /// </summary>
+        public string Psk { get; set; }
+
         public UdmCwsConfig()
         {
             FeedbackMode = FeedbackMode.Deferred; // Default to deferred
+            ApiVersion = "1.0.0";
+            Psk = string.Empty;
         }
     }
 }

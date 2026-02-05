@@ -209,6 +209,7 @@ Complete configuration with all optional features:
   "type": "udmcws",
   "properties": {
     "apiVersion": "1.0.0",
+    "psk": "your-secure-pre-shared-key-here",
     "feedbackMode": "deferred",
     "routePrefix": "room1",
 
@@ -271,7 +272,8 @@ Complete configuration with all optional features:
 
 | Property | Type | Required | Description |
 | ---------- | ------ | ---------- | ------------- |
-| `apiVersion` | string | No | API version (default: "1.0.0") |
+| `apiVersion` | string | No | API version (default: "1.0.0") - Logged against `PDT-API-VERSION` header (warning only, not rejected) |
+| `psk` | string | No | Pre-shared key for request authentication - Validated against `PDT-PSK` header. Leave empty to disable PSK validation |
 | `feedbackMode` | string | No | "deferred" (202) or "immediate" (200) |
 | `routePrefix` | string | No | Route prefix for multi-room (e.g., "room1") |
 | `deviceMappings` | array | Yes | Device mappings (see below) |
@@ -297,6 +299,51 @@ Complete configuration with all optional features:
 | `customPropertyMappings` | array | No | Custom properties (1-20) |
 
 **Note:** `roomDeviceKey` is required for PATCH operations to work.
+
+---
+
+## Security
+
+### Pre-Shared Key (PSK) Authentication
+
+UDM-CWS supports optional PSK authentication for securing API requests:
+
+**Configuration:**
+
+```json
+{
+  "key": "udmCws",
+  "type": "udmcws",
+  "properties": {
+    "apiVersion": "1.0.0",
+    "psk": "your-secure-key-here"
+  }
+}
+```
+
+**Request Headers:**
+
+UDM will send required headers. PSK must be set on device.
+
+All requests must include these headers when PSK is configured:
+
+```bash
+curl -X GET http://<processor-ip>/app01/udmcws/roomstatus \
+  -H "PDT-PSK: your-secure-key-here" \
+  -H "PDT-API-VERSION: 1.0.0"
+```
+
+**Validation Behavior:**
+
+- **API Version (`PDT-API-VERSION`)**: Logged as warning if missing or mismatched. Request is **not rejected** - allows backward compatibility while alerting developers to version mismatches in console and error logs.
+- **PSK (`PDT-PSK`)**: Only validated if configured (non-empty). Returns `401 Unauthorized` if PSK is configured but missing or incorrect.
+- **No PSK Configured**: Requests are accepted with or without the `PDT-PSK` header (no security).
+
+**Important Notes:**
+
+- Empty string PSK (`psk: ""`) is treated as "no security" - PSK validation is disabled
+- Monitoring platforms should send empty/omit `PDT-PSK` header when PSK is not configured
+- API version mismatches only log warnings - requests proceed normally for backward compatibility
 
 ---
 
