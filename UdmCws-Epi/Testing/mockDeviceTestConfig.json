@@ -1,0 +1,183 @@
+{
+  "template": {
+    "info": {
+      "comment": "UDM-CWS Comprehensive Test Configuration with Mock Devices",
+      "version": "2.24.0",
+      "description": "Test environment with all UDM-CWS mock plugins (room, occupancy, device) to demonstrate full feature set including multi-room support with route prefixes.",
+      "systemType": "custom",
+      "processorType": "rmc4"
+    },
+    "devices": [
+      {
+        "key": "processor",
+        "name": "Control Processor",
+        "type": "processor",
+        "group": "processor",
+        "properties": {}
+      },
+      {
+        "key": "mock-occupancy-1",
+        "name": "Mock Occupancy Sensor Room 1",
+        "type": "mockoccupancy",
+        "group": "occupancy",
+        "properties": {}
+      },
+      {
+        "key": "mock-occupancy-2",
+        "name": "Mock Occupancy Sensor Room 2",
+        "type": "mockoccupancy",
+        "group": "occupancy",
+        "properties": {}
+      },
+      {
+        "key": "mock-device-1",
+        "name": "Mock Display Room 1",
+        "type": "mockdevice",
+        "group": "display",
+        "properties": {}
+      },
+      {
+        "key": "mock-device-2",
+        "name": "Mock Codec Room 1",
+        "type": "mockdevice",
+        "group": "codec",
+        "properties": {}
+      },
+      {
+        "key": "mock-device-3",
+        "name": "Mock Display Room 2",
+        "type": "mockdevice",
+        "group": "display",
+        "properties": {}
+      },
+      {
+        "key": "mock-device-4",
+        "name": "Mock Codec Room 2",
+        "type": "mockdevice",
+        "group": "codec",
+        "properties": {}
+      },
+      {
+        "key": "udmCws-room1",
+        "name": "UDM-CWS Room 1 Monitoring",
+        "type": "udmcws",
+        "group": "plugin",
+        "properties": {
+          "apiVersion": "1.0.0",
+          "feedbackMode": "deferred",
+          "routePrefix": "room1",
+          "deviceMappings": [
+            {
+              "deviceKey": "mock-device-1",
+              "deviceIndex": 1,
+              "customLabel": "Main Display",
+              "description": "Primary display with full feature set"
+            },
+            {
+              "deviceKey": "mock-device-2",
+              "deviceIndex": 2,
+              "customLabel": "Video Codec",
+              "description": "Mock codec with power, warming, cooling, usage tracking"
+            }
+          ],
+          "standardProperties": {
+            "version": "1.0.0",
+            "roomDeviceKey": "mock-room-1",
+            "occupancyDeviceKey": "mock-occupancy-1"
+          }
+        }
+      },
+      {
+        "key": "udmCws-room2",
+        "name": "UDM-CWS Room 2 Monitoring",
+        "type": "udmcws",
+        "group": "plugin",
+        "properties": {
+          "apiVersion": "1.0.0",
+          "feedbackMode": "deferred",
+          "routePrefix": "room2",
+          "deviceMappings": [
+            {
+              "deviceKey": "mock-device-3",
+              "deviceIndex": 1,
+              "customLabel": "Main Display",
+              "description": "Primary display for room 2"
+            },
+            {
+              "deviceKey": "mock-device-4",
+              "deviceIndex": 2,
+              "customLabel": "Video Codec",
+              "description": "Mock codec for room 2"
+            }
+          ],
+          "standardProperties": {
+            "version": "1.0.0",
+            "roomDeviceKey": "mock-room-2",
+            "occupancyDeviceKey": "mock-occupancy-2"
+          }
+        }
+      }
+    ],
+    "rooms": [
+      {
+        "key": "mock-room-1",
+        "name": "Mock Conference Room 1",
+        "type": "mockroom",
+        "properties": {
+          "helpRequestMessage": "Support needed in Conference Room 1",
+          "defaultActivity": "idle",
+          "property1": "Custom Value 1",
+          "property2": "Custom Value 2",
+          "property3": "Custom Value 3",
+          "property4": "Custom Value 4",
+          "property5": "Custom Value 5",
+          "property6": "Custom Value 6",
+          "property7": "Custom Value 7",
+          "property8": "Custom Value 8",
+          "property9": "Custom Value 9",
+          "property10": "Custom Value 10",
+          "property11": "Custom Value 11",
+          "property12": "Custom Value 12",
+          "property13": "Custom Value 13",
+          "property14": "Custom Value 14",
+          "property15": "Custom Value 15",
+          "property16": "Custom Value 16",
+          "property17": "Custom Value 17",
+          "property18": "Custom Value 18",
+          "property19": "Custom Value 19",
+          "property20": "Custom Value 20"
+        }
+      },
+      {
+        "key": "mock-room-2",
+        "name": "Mock Conference Room 2",
+        "type": "mockroom",
+        "properties": {
+          "helpRequestMessage": "Support needed in Conference Room 2",
+          "defaultActivity": "meeting",
+          "property1": "Room 2 Value 1",
+          "property2": "Room 2 Value 2",
+          "property3": "Room 2 Value 3",
+          "property4": "Room 2 Value 4",
+          "property5": "Room 2 Value 5",
+          "property6": "Room 2 Value 6",
+          "property7": "Room 2 Value 7",
+          "property8": "Room 2 Value 8",
+          "property9": "Room 2 Value 9",
+          "property10": "Room 2 Value 10",
+          "property11": "Room 2 Value 11",
+          "property12": "Room 2 Value 12",
+          "property13": "Room 2 Value 13",
+          "property14": "Room 2 Value 14",
+          "property15": "Room 2 Value 15",
+          "property16": "Room 2 Value 16",
+          "property17": "Room 2 Value 17",
+          "property18": "Room 2 Value 18",
+          "property19": "Room 2 Value 19",
+          "property20": "Room 2 Value 20"
+        }
+      }
+    ]
+  },
+  "system": {}
+}

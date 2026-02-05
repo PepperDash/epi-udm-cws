@@ -1,0 +1,212 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+*******************************************************************************************/
+/*
+Dealer Name: PepperDash Technology Corp
+System Name: UDM-CWS Room Status
+System Number:
+Programmer: PepperDash
+Comments: UDM-CWS endpoint for room status reporting and control
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+*******************************************************************************************/
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#USER_SIMPLSHARP_LIBRARY "UdmCws-Lib"
+
+
+//Constants
+#Define_Constant STRING_SIZE 255
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+*******************************************************************************************/
+
+// ---------- PARAMETERS ----------
+STRING_PARAMETER RoutePrefix[50];
+
+INTEGER_PARAMETER iFeedbackMode;
+#BEGIN_PARAMETER_PROPERTIES iFeedbackMode
+propDefaultValue = 0d;
+propList = { 0d, "Deferred (202)" }, { 1d, "Immediate (200)" };
+#END_PARAMETER_PROPERTIES
+
+// ---------- CONTROL INPUTS ----------
+DIGITAL_INPUT _SKIP_, _SKIP_, Enable;                  // Must be high for module to work
+DIGITAL_INPUT Init;                    // Pulse to initialize/sync all signals
+
+// ---------- OUTPUTS ----------
+DIGITAL_OUTPUT _SKIP_, _SKIP_, Initialized_fb;         // High when initialized and ready
+DIGITAL_OUTPUT Server_Running;
+DIGITAL_OUTPUT ReportState_Request;    // Pulse when GET received (optional)
+STRING_OUTPUT Desired_RoomState;       // Desired room state from PATCH
+STRING_OUTPUT Desired_RoomActivity;    // Desired room activity from PATCH
+
+DIGITAL_INPUT Standard_Occupancy;
+
+// ---------- INPUTS - Standard Properties (Read-Only Reporting) ----------
+STRING_INPUT Standard_Version[STRING_SIZE];
+STRING_INPUT Standard_State[STRING_SIZE];          // Current room state
+STRING_INPUT Standard_Error[STRING_SIZE];
+STRING_INPUT Standard_HelpRequest[STRING_SIZE];
+STRING_INPUT Standard_Activity[STRING_SIZE];
+
+ANALOG_INPUT Device_Usage[20,20];
+
+// ---------- INPUTS - Device Status (Read-Only Reporting) ----------
+STRING_INPUT Device_Label[20,20][STRING_SIZE];
+STRING_INPUT Device_Status[20,20][STRING_SIZE];
+STRING_INPUT Device_Description[20,20][STRING_SIZE];
+STRING_INPUT Device_VideoSource[20,20][STRING_SIZE];
+STRING_INPUT Device_AudioSource[20,20][STRING_SIZE];
+STRING_INPUT Device_Error[20,20][STRING_SIZE];
+
+// ---------- INPUTS - Custom Properties (Read-Only Reporting) ----------
+STRING_INPUT Custom_Label[20,20][STRING_SIZE];
+STRING_INPUT Custom_Value[20,20][STRING_SIZE];
+/*******************************************************************************************
+  Global Variables
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Event Handlers
+*******************************************************************************************/
+
+
+/*******************************************************************************************
+  Sync Function - Sends all current signal values to C#
+*******************************************************************************************/
+
+FUNCTION SyncAllSignals()
+{
+	INTEGER i;
+	
+	// Sync standard properties
+	UdmCWSController.SetStandardVersion(Standard_Version);
+	UdmCWSController.SetStandardState(Standard_State);
+	UdmCWSController.SetStandardError(Standard_Error);
+	UdmCWSController.SetStandardOccupancy(Standard_Occupancy);
+	UdmCWSController.SetStandardHelpRequest(Standard_HelpRequest);
+	UdmCWSController.SetStandardActivity(Standard_Activity);
+	
+	// Sync all devices (1-20)
+	FOR (i = 1 TO 20)
+	{
+		UdmCWSController.SetDeviceLabel(i, Device_Label[i]);
+		UdmCWSController.SetDeviceStatus(i, Device_Status[i]);
+		UdmCWSController.SetDeviceDescription(i, Device_Description[i]);
+		UdmCWSController.SetDeviceVideoSource(i, Device_VideoSource[i]);
+		UdmCWSController.SetDeviceAudioSource(i, Device_AudioSource[i]);
+		UdmCWSController.SetDeviceUsage(i, Device_Usage[i]);
+		UdmCWSController.SetDeviceError(i, Device_Error[i]);
+	}
+	
+	// Sync custom properties (1-20)
+	FOR (i = 1 TO 20)
+	{
+		UdmCWSController.SetCustomLabel(i, Custom_Label[i]);
+		UdmCWSController.SetCustomValue(i, Custom_Value[i]);
+	}
+}
+
+/*******************************************************************************************
+  Control Handlers
+*******************************************************************************************/
+
+// Initialize/sync on Init pulse
+PUSH Init
+{
+	IF (Enable)
+	{
+		// Sync all current signal values to C#
+		SyncAllSignals();
+		
+		// Indicate ready
+		Initialized_fb = 1;
+	}
+}
+
+// Clear initialized flag when disabled
+CHANGE Enable
+{
+	IF (Enable = 0)
+	{
+		Initialized_fb = 0;
+	}
+}
+
+/*******************************************************************************************
+  Callback Functions
+*******************************************************************************************/
+
+// Called when GET request is received - sync signals to ensure fresh data
+CALLBACK FUNCTION ReportStateCallback(INTEGER dummy)
+{
+	if(Enable)
+	{
+		// Sync all signals before reporting (ensures fresh data)
+		SyncAllSignals();
+		
+		// Pulse output to notify SIMPL program (optional)
+		PULSE(100, ReportState_Request);
+    }
+}
+
+// Called when PATCH request received with desired room state
+CALLBACK FUNCTION RoomStateChangeCallback(STRING desiredState)
+{
+	IF (Enable)
+	{
+		// Send desired state to output
+		Desired_RoomState = desiredState;
+	}
+}
+
+// Called when PATCH request received with desired room activity
+CALLBACK FUNCTION RoomActivityChangeCallback(STRING desiredActivity)
+{
+	IF (Enable)
+	{
+		// Send desired activity to output
+		Desired_RoomActivity = desiredActivity;
+	}
+}
+
+/*******************************************************************************************
+  Main()
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+	// Wait for system to initialize
+	WaitForInitializationComplete();
+	
+	// Register callbacks for C# events
+	RegisterDelegate(UdmCWSController, ReportStateRequest, ReportStateCallback);
+	RegisterDelegate(UdmCWSController, RoomStateChange, RoomStateChangeCallback);
+	RegisterDelegate(UdmCWSController, RoomActivityChange, RoomActivityChangeCallback);
+	
+	// Set feedback mode from parameter
+	UdmCWSController.SetFeedbackMode(iFeedbackMode);
+
+	// Set route prefix if specified (must be before Initialize)
+	IF (LEN(RoutePrefix) > 0)
+	{
+		UdmCWSController.SetRoutePrefix(RoutePrefix);
+	}
+
+	// Initialize and start the C# server
+	UdmCWSController.Initialize();
+	
+	// Server is running
+	Server_Running = 1;
+	
+	// If Enable is already high at startup, initialize now
+	IF (Enable)
+	{
+		SyncAllSignals();
+		Initialized_fb = 1;
+	}
+}

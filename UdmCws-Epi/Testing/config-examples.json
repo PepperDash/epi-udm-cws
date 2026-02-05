@@ -1,0 +1,270 @@
+{
+  "examples": [
+    {
+      "name": "Codec Room with Activity Mapping",
+      "description": "Traditional codec room with in-call activity detection",
+      "config": {
+        "key": "udmCws",
+        "type": "udmcws",
+        "properties": {
+          "apiVersion": "1.0.0",
+          "feedbackMode": "deferred",
+          "deviceMappings": [
+            {
+              "deviceKey": "codec-1",
+              "deviceIndex": 1,
+              "customLabel": "Video Codec",
+              "description": "Cisco Room Kit Plus"
+            },
+            {
+              "deviceKey": "display-1",
+              "deviceIndex": 2,
+              "customLabel": "Main Display",
+              "description": "Samsung 75\" Display"
+            }
+          ],
+          "standardProperties": {
+            "version": "1.0.0",
+            "roomDeviceKey": "room-1",
+            "occupancyDeviceKey": "occupancy-1",
+
+            "activityMapping": {
+              "getProperty": {
+                "deviceKey": "codec-1",
+                "propertyPath": "InCallFeedback.BoolValue",
+                "valueMap": {
+                  "True": "call",
+                  "False": "idle"
+                }
+              },
+              "setFunctions": {
+                "call": "Dial",
+                "idle": "EndCall"
+              },
+              "setDeviceKey": "codec-1"
+            },
+
+            "customPropertyMappings": [
+              {
+                "propertyKey": "property1",
+                "label": "Call Duration",
+                "mapping": {
+                  "deviceKey": "codec-1",
+                  "propertyPath": "CallDurationFeedback.IntValue",
+                  "format": "{0} minutes",
+                  "defaultValue": "0"
+                }
+              },
+              {
+                "propertyKey": "property2",
+                "label": "Participant Count",
+                "mapping": {
+                  "deviceKey": "codec-1",
+                  "propertyPath": "ParticipantCountFeedback.IntValue",
+                  "defaultValue": "0"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Matrix Room with Source-Based Activity",
+      "description": "Room with matrix switcher, activity based on selected source",
+      "config": {
+        "key": "udmCws",
+        "type": "udmcws",
+        "properties": {
+          "apiVersion": "1.0.0",
+          "feedbackMode": "deferred",
+          "deviceMappings": [
+            {
+              "deviceKey": "matrix-1",
+              "deviceIndex": 1,
+              "customLabel": "Video Matrix",
+              "description": "DM 32x32 Matrix"
+            },
+            {
+              "deviceKey": "dsp-1",
+              "deviceIndex": 2,
+              "customLabel": "Audio DSP",
+              "description": "Biamp Tesira"
+            }
+          ],
+          "standardProperties": {
+            "version": "1.0.0",
+            "roomDeviceKey": "room-1",
+
+            "activityMapping": {
+              "getProperty": {
+                "deviceKey": "room-1",
+                "propertyPath": "CurrentSourceInfo.Name",
+                "valueMap": {
+                  "codec": "call",
+                  "laptop-1": "presentation",
+                  "laptop-2": "presentation",
+                  "wireless-share": "share",
+                  "": "idle"
+                }
+              },
+              "setFunctions": {
+                "call": "SelectCodecSource",
+                "presentation": "SelectLaptopSource",
+                "share": "SelectWirelessSource",
+                "idle": "Shutdown"
+              }
+            },
+
+            "helpRequestMapping": {
+              "deviceKey": "room-1",
+              "propertyPath": "HelpMessage"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Biamp VoIP Room",
+      "description": "Room with Biamp VoIP, no video codec",
+      "config": {
+        "key": "udmCws",
+        "type": "udmcws",
+        "properties": {
+          "apiVersion": "1.0.0",
+          "feedbackMode": "deferred",
+          "deviceMappings": [
+            {
+              "deviceKey": "biamp-1",
+              "deviceIndex": 1,
+              "customLabel": "Biamp DSP with VoIP",
+              "description": "Tesira with VoIP-1 Card"
+            }
+          ],
+          "standardProperties": {
+            "version": "1.0.0",
+            "roomDeviceKey": "room-1",
+
+            "activityMapping": {
+              "getProperty": {
+                "deviceKey": "biamp-1",
+                "propertyPath": "VoipLine1.IsInCall.BoolValue",
+                "valueMap": {
+                  "True": "call",
+                  "False": "idle"
+                }
+              },
+              "setFunctions": {
+                "call": "DialVoIP",
+                "idle": "HangupVoIP"
+              },
+              "setDeviceKey": "biamp-1"
+            },
+
+            "customPropertyMappings": [
+              {
+                "propertyKey": "property1",
+                "label": "VoIP Line Status",
+                "mapping": {
+                  "deviceKey": "biamp-1",
+                  "propertyPath": "VoipLine1.StatusFeedback.StringValue"
+                }
+              },
+              {
+                "propertyKey": "property2",
+                "label": "Room Volume",
+                "mapping": {
+                  "deviceKey": "biamp-1",
+                  "propertyPath": "ProgramLevel.LevelFeedback.IntValue",
+                  "format": "{0}%"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Custom Properties for Environmental Monitoring",
+      "description": "Room with temperature, lighting, and occupancy tracking",
+      "config": {
+        "key": "udmCws",
+        "type": "udmcws",
+        "properties": {
+          "apiVersion": "1.0.0",
+          "feedbackMode": "deferred",
+          "deviceMappings": [
+            {
+              "deviceKey": "codec-1",
+              "deviceIndex": 1,
+              "customLabel": "Video Codec"
+            }
+          ],
+          "standardProperties": {
+            "version": "1.0.0",
+            "roomDeviceKey": "room-1",
+            "occupancyDeviceKey": "occupancy-1",
+
+            "customPropertyMappings": [
+              {
+                "propertyKey": "property1",
+                "label": "Room Temperature",
+                "mapping": {
+                  "deviceKey": "thermostat-1",
+                  "propertyPath": "TemperatureFeedback.IntValue",
+                  "format": "{0}°F"
+                }
+              },
+              {
+                "propertyKey": "property2",
+                "label": "Lighting Level",
+                "mapping": {
+                  "deviceKey": "lighting-1",
+                  "propertyPath": "MasterLevel.IntValue",
+                  "format": "{0}%"
+                }
+              },
+              {
+                "propertyKey": "property3",
+                "label": "CO2 Level",
+                "mapping": {
+                  "deviceKey": "air-quality-1",
+                  "propertyPath": "CO2Feedback.IntValue",
+                  "format": "{0} ppm"
+                }
+              },
+              {
+                "propertyKey": "property4",
+                "label": "Occupancy Count",
+                "mapping": {
+                  "deviceKey": "occupancy-1",
+                  "propertyPath": "PeopleCountFeedback.IntValue",
+                  "defaultValue": "0"
+                }
+              },
+              {
+                "propertyKey": "property5",
+                "label": "Display Lamp Hours",
+                "mapping": {
+                  "deviceKey": "display-1",
+                  "propertyPath": "LampHours.IntValue",
+                  "format": "{0} hours",
+                  "defaultValue": "0"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+
+  "notes": {
+    "propertyPath": "Use dot notation to traverse object properties. Example: 'InCallFeedback.BoolValue'",
+    "valueMap": "Maps raw property values to display values. Example: 'True' -> 'call'",
+    "format": "String.Format pattern for display. Example: '{0}°F' for temperature",
+    "defaultValue": "Returned if property is null or not found",
+    "setFunctions": "Map activity values to method names on the device. Method must exist and take no parameters.",
+    "performance": "Reflection happens once at startup. Per-request overhead is minimal (~0.1ms per property)."
+  }
+}

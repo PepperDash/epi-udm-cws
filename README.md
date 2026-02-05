@@ -1,330 +1,619 @@
-# Internal Essentials Plugin Template (c) 2020
+# UDM-CWS (Unified Device Management - Crestron Web Services)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
+
+A standardized REST API for monitoring and controlling room devices in PepperDash Essentials. UDM-CWS provides a vendor-neutral API that enables unified device management across different room types and configurations.
+
+## Table of Contents
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+  - [Essentials Plugin (EPI)](#essentials-plugin-epi)
+  - [SIMPL+ Modules](#simpl-modules)
+  - [Core Library](#core-library)
+- [Configuration](#configuration)
+- [API Reference](#api-reference)
+- [Auto-Detection](#auto-detection)
+- [Advanced Features](#advanced-features)
+- [Testing](#testing)
+- [Building from Source](#building-from-source)
+
+---
+
+## Features
+
+- **Auto-Detection** - Automatically discovers device capabilities via Essentials interfaces
+- **Zero Per-Device Config** - No manual property mapping required for standard features
+- **Multi-Platform** - Available as Essentials plugin (EPI), SIMPL+ modules, and standalone library
+- **Multi-Room Support** - Multiple independent rooms in a single app instance
+- **Flexible Property Mapping** - Optional reflection-based property access for custom scenarios
+- **Convention-Based** - Intelligent interface detection for device state
+- **REST API** - Standard HTTP endpoints for GET (status) and PATCH (control)
+
+---
+
+## Quick Start
+
+### 1. Install the Plugin
+
+Download `UdmCws-Epi.1.0.0-local.cplz` from releases and deploy to your processor:
+
+```bash
+# Copy to processor plugins directory
+/user/program1/loadedPlugins/
+```
+
+### 2. Add Configuration
+
+Add to your Essentials `configurationFile.json`:
+
+```json
+{
+  "key": "udmCws",
+  "type": "udmcws",
+  "properties": {
+    "deviceMappings": [
+      {
+        "deviceKey": "codec-1",
+        "deviceIndex": 1,
+        "customLabel": "Video Codec"
+      },
+      {
+        "deviceKey": "display-1",
+        "deviceIndex": 2,
+        "customLabel": "Main Display"
+      }
+    ],
+    "standardProperties": {
+      "roomDeviceKey": "room-1",
+      "occupancyDeviceKey": "occupancy-1"
+    }
+  }
+}
+```
+
+### 3. Access the API
+
+```bash
+# Get room status
+curl http://<processor-ip>/app01/udmcws/roomstatus
+
+# Power on the room
+curl -X PATCH http://<processor-ip>/app01/udmcws/roomstatus \
+  -H "Content-Type: application/json" \
+  -d '{"apiVersion":"1.0.0","standard":{"state":"on"}}'
+```
+
+---
+
+## Installation
+
+### Essentials Plugin (EPI)
+
+The Essentials Plugin integrates with PepperDash Essentials and provides full UDM-CWS functionality.
+
+**Requirements:**
+- PepperDash Essentials 2.24.0+
+- .NET Framework 4.7.2
+
+**Installation:**
+
+1. Download `UdmCws-Epi.1.0.0-local.cplz`
+2. Upload to `/user/program1/loadedPlugins/` on your processor
+3. Add configuration to your Essentials config (see [Configuration](#configuration))
+4. Restart Essentials application
+
+**Endpoints:**
+- GET `/app01/udmcws/roomstatus` - Get current room and device status
+- PATCH `/app01/udmcws/roomstatus` - Update room state (on/off)
+
+### SIMPL+ Module
+
+A single SIMPL+ module provides signal-based integration for SIMPL Windows programs.
+
+**Module:**
+- **UdmCws.usp** - All-in-one module handling status, control, and property mapping
+
+**Requirements:**
+- SIMPL Windows (for compilation)
+- UdmCws-Epi.cplz (deployed to processor)
+
+**Key Signals:**
+
+```
+// Parameters
+STRING_PARAMETER RoutePrefix[50];    // Optional for multi-room
+INTEGER_PARAMETER iFeedbackMode;     // 0=Deferred, 1=Immediate
+
+// Control Inputs
+DIGITAL_INPUT Enable;                // Must be high for operation
+DIGITAL_INPUT Init;                  // Pulse to sync all signals
+
+// Feedback Outputs
+DIGITAL_OUTPUT Initialized_fb;       // High when ready
+DIGITAL_OUTPUT ReportState_Request;  // Pulses on GET request
+STRING_OUTPUT Desired_RoomState;     // "on"/"off" from PATCH
+STRING_OUTPUT Desired_RoomActivity;  // Activity from PATCH
+
+// Standard Properties (20 inputs)
+ANALOG_INPUT Device_Usage[20];
+STRING_INPUT Standard_Version, Standard_State, Standard_Error, etc.
+STRING_INPUT Device_Label[20], Device_Status[20], etc.
+STRING_INPUT Custom_Label[20], Custom_Value[20];
+```
+
+See [UdmCws-Plus/UdmCws.usp](UdmCws-Plus/UdmCws.usp) for complete signal reference.
+
+### Core Library
+
+The core library (`UdmCws-Lib`) provides framework-agnostic models and interfaces.
+
+**Use Cases:**
+- Building custom integrations
+- Creating alternative transport layers
+- Unit testing
+
+**NuGet Package:**
+```bash
+dotnet add package UdmCws-Lib
+```
+
+**Key Components:**
+- **Models** - State, DeviceStatus, StandardProperties, CustomProperties
+- **Interfaces** - Event system for state changes
+- **Configuration** - PropertyMapping, DeviceMapping, UdmCwsConfiguration
+
+---
+
+## Configuration
+
+### Basic Configuration
+
+Minimal configuration with auto-detected properties:
+
+```json
+{
+  "key": "udmCws",
+  "type": "udmcws",
+  "properties": {
+    "deviceMappings": [
+      {
+        "deviceKey": "codec-1",
+        "deviceIndex": 1
+      }
+    ],
+    "standardProperties": {
+      "roomDeviceKey": "room-1"
+    }
+  }
+}
+```
+
+### Full Configuration
+
+Complete configuration with all optional features:
+
+```json
+{
+  "key": "udmCws",
+  "type": "udmcws",
+  "properties": {
+    "apiVersion": "1.0.0",
+    "feedbackMode": "deferred",
+    "routePrefix": "room1",
+
+    "deviceMappings": [
+      {
+        "deviceKey": "codec-1",
+        "deviceIndex": 1,
+        "customLabel": "Video Codec",
+        "description": "Main room codec for conferencing"
+      },
+      {
+        "deviceKey": "display-1",
+        "deviceIndex": 2,
+        "customLabel": "Main Display",
+        "description": "Primary display panel"
+      }
+    ],
+
+    "standardProperties": {
+      "version": "1.0.0",
+      "roomDeviceKey": "room-1",
+      "occupancyDeviceKey": "occupancy-1",
+
+      "activityMapping": {
+        "getProperty": {
+          "deviceKey": "room-1",
+          "propertyPath": "Activity"
+        }
+      },
+
+      "helpRequestMapping": {
+        "deviceKey": "room-1",
+        "propertyPath": "HelpRequest"
+      },
+
+      "customPropertyMappings": [
+        {
+          "propertyKey": "property1",
+          "label": "Codec In Call",
+          "mapping": {
+            "deviceKey": "codec-1",
+            "propertyPath": "IsInCall"
+          }
+        },
+        {
+          "propertyKey": "property2",
+          "label": "Room Occupied",
+          "mapping": {
+            "deviceKey": "occupancy-1",
+            "propertyPath": "RoomIsOccupiedFeedback.BoolValue"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Configuration Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `apiVersion` | string | No | API version (default: "1.0.0") |
+| `feedbackMode` | string | No | "deferred" (202) or "immediate" (200) |
+| `routePrefix` | string | No | Route prefix for multi-room (e.g., "room1") |
+| `deviceMappings` | array | Yes | Device mappings (see below) |
+| `standardProperties` | object | Yes | Standard properties config (see below) |
+
+#### Device Mapping
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `deviceKey` | string | Yes | Essentials device key |
+| `deviceIndex` | number | Yes | Device number (1-20) |
+| `customLabel` | string | No | Display name (defaults to device key) |
+| `description` | string | No | Device description |
+
+#### Standard Properties
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `roomDeviceKey` | string | Yes* | Room device key (IEssentialsRoom) |
+| `occupancyDeviceKey` | string | No | Occupancy sensor key |
+| `activityMapping` | object | No | Activity property mapping |
+| `helpRequestMapping` | object | No | Help request property mapping |
+| `customPropertyMappings` | array | No | Custom properties (1-20) |
+
+**Note:** `roomDeviceKey` is required for PATCH operations to work.
+
+---
+
+## API Reference
+
+### GET /roomstatus
+
+Get current room and device status.
+
+**Response:**
+
+```json
+{
+  "apiVersion": "1.0.0",
+  "standard": {
+    "version": "1.0.0",
+    "state": "On",
+    "error": "",
+    "occupancy": true,
+    "helpRequest": "",
+    "activity": "idle"
+  },
+  "status": {
+    "devices": {
+      "device1": {
+        "label": "Video Codec",
+        "status": "On",
+        "description": "Main room codec",
+        "videoSource": "HDMI 1",
+        "audioSource": "HDMI 1",
+        "usage": 45,
+        "error": null
+      }
+    }
+  },
+  "custom": {
+    "property1": {
+      "label": "Codec In Call",
+      "value": "true"
+    }
+  }
+}
+```
+
+### PATCH /roomstatus
+
+Update room state.
+
+**Request:**
+
+```json
+{
+  "apiVersion": "1.0.0",
+  "standard": {
+    "state": "on"
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "apiVersion": "1.0.0",
+  "standard": {
+    "state": "on"
+  }
+}
+```
+
+**Behavior:**
+- `"state": "on"` → Calls `IEssentialsRoom.PowerOnToDefaultOrLastSource()`
+- `"state": "off"` → Calls `IEssentialsRoom.Shutdown()`
+
+The room itself manages which devices to power on/off.
+
+### Multi-Room Endpoints
+
+When using route prefixes:
+
+```
+GET  /app01/udmcws/room1/roomstatus
+PATCH /app01/udmcws/room1/roomstatus
+
+GET  /app01/udmcws/room2/roomstatus
+PATCH /app01/udmcws/room2/roomstatus
+```
+
+---
+
+## Auto-Detection
+
+UDM-CWS automatically populates device properties by detecting Essentials interfaces. No per-device configuration required.
+
+### Device Properties
+
+| Property | Auto-Detection | Description |
+|----------|---------------|-------------|
+| **label** | Config or `device.Key` | Device display name |
+| **status** | `IHasPowerControlWithFeedback`<br>`IWarmingCooling`<br>`VideoCodecBase.IsInCall` | On/Off/Warming/Cooling/In Call |
+| **description** | Config only | User-provided description |
+| **usage** | `IUsageTracking`<br>`IDisplayUsage` | Session minutes or lamp hours |
+| **error** | `ICommunicationMonitor`<br>`IOnline` | Communication status |
+| **videoSource**<br>**audioSource** | `IRoutingSink.CurrentSourceInfo` | Current routing source |
+
+### Room Properties
+
+| Property | Auto-Detection | Description |
+|----------|---------------|-------------|
+| **state** | `IEssentialsRoom.OnFeedback` | Room power state (On/Off) |
+| **occupancy** | `IOccupancyStatusProvider` | Room occupancy status |
+| **activity** | Optional property mapping | Current activity (call/presentation/idle) |
+| **helpRequest** | Optional property mapping | Help request status |
+
+### Usage Tracking Logic
+
+1. **IUsageTracking** (preferred) - Returns session minutes when device is in use, null when idle
+2. **IDisplayUsage** (fallback) - Returns total lamp hours for displays
+3. **null** (default) - Device doesn't support usage tracking
+
+### Codec Standby Handling
+
+Video/audio codecs in standby mode (online but PowerIsOnFeedback=false) are reported as "On" for monitoring purposes.
+
+---
+
+## Advanced Features
+
+### Multi-Room Support
+
+Run multiple independent rooms in a single Essentials app instance:
+
+```json
+{
+  "key": "udmCws-room1",
+  "type": "udmcws",
+  "properties": {
+    "routePrefix": "room1",
+    "deviceMappings": [/*...*/],
+    "standardProperties": {/*...*/}
+  }
+},
+{
+  "key": "udmCws-room2",
+  "type": "udmcws",
+  "properties": {
+    "routePrefix": "room2",
+    "deviceMappings": [/*...*/],
+    "standardProperties": {/*...*/}
+  }
+}
+```
+
+### Custom Property Mapping
+
+Map any device property to custom properties using reflection:
+
+```json
+"customPropertyMappings": [
+  {
+    "propertyKey": "property1",
+    "label": "Room Temperature",
+    "mapping": {
+      "deviceKey": "thermostat-1",
+      "propertyPath": "TemperatureFeedback.IntValue",
+      "format": "{0}°F",
+      "defaultValue": "72"
+    }
+  },
+  {
+    "propertyKey": "property2",
+    "label": "Participant Count",
+    "mapping": {
+      "deviceKey": "codec-1",
+      "propertyPath": "ParticipantCountFeedback.IntValue",
+      "valueMap": {
+        "0": "No participants",
+        "1": "1 participant"
+      }
+    }
+  }
+]
+```
+
+**Property Path Format:**
+- Simple: `"IsInCall"` (boolean property)
+- Nested: `"RoomIsOccupiedFeedback.BoolValue"` (feedback object property)
+- Deep: `"CurrentSourceInfo.Name"` (multiple levels)
+
+**Value Transformation:**
+- `valueMap` - Map raw values to display values
+- `format` - String format pattern (e.g., `"{0}°F"`)
+- `defaultValue` - Value if property not found or null
+
+**Performance:**
+- Property accessors are compiled once at startup using reflection
+- Lazy compilation on first access (handles device loading order)
+- Cached delegates for fast access (~0.1ms per property)
+
+### Activity Mapping (Read/Write)
+
+Map room activity with both get (read) and set (write) operations:
+
+```json
+"activityMapping": {
+  "getProperty": {
+    "deviceKey": "room-1",
+    "propertyPath": "Activity",
+    "valueMap": {
+      "codec": "call",
+      "laptop": "presentation"
+    }
+  },
+  "setFunctions": {
+    "call": "StartCall",
+    "presentation": "StartPresentation",
+    "idle": "EndAllActivity"
+  },
+  "setDeviceKey": "room-1"
+}
+```
+
+---
+
+## Testing
+
+### Mock Plugins
+
+The repository includes comprehensive mock plugins for testing without hardware:
+
+**UdmCws-Test-Room-Epi** - Mock room with:
+- 20 configurable custom properties
+- Activity and help request support
+- Device power control
+
+**UdmCws-Test-Occ-Epi** - Mock occupancy sensor with:
+- Auto-toggle every 30 seconds
+- Manual control
+
+**UdmCws-Test-Device-Epi** - Mock device with:
+- Power control (with 2s warming/cooling simulation)
+- Usage tracking
+- Communication monitoring
+- Routing support
+
+### Test Configuration
+
+See [UdmCws-Epi/Testing/configurationFile.json](UdmCws-Epi/Testing/configurationFile.json) for a complete test configuration using mock plugins and real devices.
+
+### Deployment Guide
+
+See [UdmCws-Epi/Testing/TESTING_GUIDE.md](UdmCws-Epi/Testing/TESTING_GUIDE.md) for detailed testing instructions.
+
+---
+
+## Building from Source
+
+### Requirements
+
+- .NET Framework 4.7.2 SDK
+- PepperDash Essentials 2.24.0+
+- SIMPL Windows (for SIMPL+ modules)
+
+### Build Commands
+
+```bash
+# Build entire solution
+dotnet build UdmCws.sln --configuration Release
+
+# Build specific projects
+dotnet build UdmCws-Lib/UdmCws-Lib.csproj --configuration Release
+dotnet build UdmCws-Epi/UdmCws-Epi.csproj --configuration Release
+
+# Build mock plugins
+dotnet build UdmCws-Test-Room-Epi/UdmCws-Test-Room-Epi.csproj --configuration Release
+dotnet build UdmCws-Test-Occ-Epi/UdmCws-Test-Occ-Epi.csproj --configuration Release
+dotnet build UdmCws-Test-Device-Epi/UdmCws-Test-Device-Epi.csproj --configuration Release
+```
+
+### Output Files
+
+Build artifacts are generated in `output/`:
+- `UdmCws-Epi.1.0.0-local.cplz` - Essentials plugin
+- `UdmCws-Test-Room-Epi.1.0.0-local.cplz` - Mock room plugin
+- `UdmCws-Test-Occ-Epi.1.0.0-local.cplz` - Mock occupancy plugin
+- `UdmCws-Test-Device-Epi.1.0.0-local.cplz` - Mock device plugin
+- `UdmCws-Lib.1.0.0-local.nupkg` - Core library NuGet package
+
+### Download Dependencies
+
+```bash
+# macOS/Linux
+./GetPackages.sh
+
+# Windows
+GetPackages.BAT
+```
+
+---
+
+## Documentation
+
+- **[TESTING_GUIDE.md](UdmCws-Epi/Testing/TESTING_GUIDE.md)** - Complete testing guide
+- **[Device Monitoring API.openapi.yaml](Device%20Monitoring%20API.openapi.yaml)** - OpenAPI 3.1 specification
+- **[LICENSE.md](LICENSE.md)** - MIT License
+
+---
 
 ## License
 
-Provided under MIT license
+This project is licensed under the MIT License - see [LICENSE.md](LICENSE.md) for details.
 
-## Overview
+---
 
-Use this repo as a template when creating a new plugin for Essentials. For more information about plugins, refer to the Essentials Wiki [Plugins](https://github.com/PepperDash/Essentials/wiki/Plugins) article.
+## Supported Types
 
-## Nuget
+**Production:**
+- `udmcws` - UDM-CWS Essentials Plugin
 
-You must have nuget.exe installed and in the PATH environment variable to use the following command. Nuget.exe is available at nuget.org.  It is recommended to use [Scoop](https://scoop.sh/) to install nuget using the command: 
+**Testing:**
+- `mockroom` - Mock Room Plugin
+- `mockoccupancy` - Mock Occupancy Sensor
+- `mockdevice` - Mock Device
 
-```
-scoop install nuget
-```
+---
 
-### Manually Installing Dependencies
+## Minimum Essentials Framework Version
 
-To install dependencies once nuget.exe is installed, after cloning the template or creating your template repo, run the following command: 
-
-```
-nuget install .\packages.config -OutputDirectory .\packages -excludeVersion
-```
-
-Verify you are using the proper "\\" or "/" per the console used.  To verify that the packages installed correctly, open Essentials and make sure that all references are found, then try and build it.  **This issue will be found when using WSL on Windows10.**
-
-Once the nuget package has been installed locally you will need to update your project references.
-1. Right click on **References**
-2. Select **Add Reference**
-3. Browse to the **packages** folder 
-4. Select the required references.
-
-### Installing Different versions of PepperDash Essentials
-
-If you need a different version of PepperDash Essentials, use the command:
-```
-nuget install PepperDashEssentials -OutputDirectory .\packages -excludeVersion -Version {versionToGet}
-```
-
-Omitting the **-Version** option will pull the latest version available.
-
-## Github Actions
-
-Github Action workflow Templates will build this project automatically. Any branches named `feature/*`, `release/*`, `hotfix/*` or `development` will automatically be built with the action and create a release in the repository with a version number based on the latest release on the main branch. If there are no releases yet, the version number will be 0.0.1. The version number will be modified based on what branch triggered the build:
-
-- `feature` branch builds will be tagged with an `alpha` descriptor, with the Action run appended: `0.0.1-alpha-1`
-- `development` branch builds will be tagged with a `beta` descriptor, with the Action run appended: `0.0.1-beta-2`
-- `release` branches will be tagged with an `rc` descriptor, with the Action run appended: `0.0.1-rc-3`
-- `hotfix` branch builds will be tagged with a `hotfix` descriptor, with the Action run appended: `0.0.1-hotfix-4`
-
-Builds on the Main branch will ONLY be triggered by manually creating a release using the web interface in the repository. They will be versioned with the tag that is created when the release is created. The tags MUST take the form `major.minor.revision` to be compatible with the build process. A tag like `v0.1.0-alpha` is NOT compatabile and may result in the build process failing.
-
-To trigger a Main branch build follow the steps:
-1. Click ***Releases*** on the left of the repo file window.
-2. On the Releases page, click the ***Draft*** a new release" button on the right.
-3. Enter a ***Tag version*** in the form `major.minor`.
-4. Select the ***Target***, typically this will be the `Main` branch.
-5. Enter a ***Release title***, typically this will be the same as the ***Tag version***.
-6. Click ***Publish Release***
-
-## Intial steps to build a plugin 
-
-When building a plugin the following steps can be followed to get you up and running quickly.  The steps below assume you have cloned the template repo and installed the necessary NuGet packages.
-
-1. In GitHub click the ***Use This Template*** to create a new repo from the template.
-2. In GitHub click the ***Actions*** tab at the top of the repo created.
-3. From GitHub ***Actions*** page, click ***New Workflow*** to setup build actions.
-4. From GitHub ***Actions Workflow Template*** page, find ***Workflows created by PepperDash-Engineering***, there should be 2 actions:
-	- **Essentials Plugins Beta Builds Workflow**
-	- **Essentials Plugins Release Builds Workflow**.
-5. Click ***Set up this workflow*** for both workflow actions
-6. Clone the newly created template repo to begin working locally.
-7. Rename the ***EssentialsPluginTemplate*** folder to represent the plugin being built
-8. Rename the ****.sln*** and the ****.nuspec*** files to represent the plugin being built
-9. Install Essentials as a Nuget package.
-	- You can click on the ***GetPackages.bat*** file to automate installation of the nuget packages.
-10. Update the ***.nuspec*** file.  The file contains comments providing additional directions on what updates are required.
-11. Open the solution and resolve the reference issues
-	- Right click on ***References*** 
-	- Select ***Add References***
-	- Select ***Browse***
-	- Navigate the the ***packages*** folder created when installing the NuGet packages
-	- Select the necessary ****.dll's*** to resolve all reference warnings
-12. Review the ***EssentialsPluginFactoryTemplate.cs*** and remove the unused classes and associated ****.cs*** files from the solution.
-13. Rename the classes to represent the device plugin being built.
-	
-	***Plugin Template***
-	```
-	EssentialsPluginFactoryTemplate.cs
-	```
-	***Plugin Example***
-	```
-	TacoTuesdayCalculatorFactory.cs
-	```
-14. Follow the ***TODO [ ]*** comments found within the template solution.
-15. Update the readme.md information below to help document your plugin.
-16. When development is complete, commit the changes and push back to GitHub.
-
-
-
-## Device Specific Information
-
-Update the below readme as needed to support documentation of the plugin
-
-### Communication Settings
-
-Update the communication settings as needed for the plugin being developed.
-
-| Setting      | Value       |
-|--------------|-------------|
-| Baud rate    | 9600        |
-| Data bits    | 8           |
-| Stop bits    | 1           |
-| Parity       | None        |
-| Flow Control | None        |
-| Delimiter    | "\r"        |
-| Default IP   | 169.254.1.1 |
-| Default Port | 23          |
-| Username     | admin       |
-| Password     | password    |
-
-#### Plugin Valid Communication methods
-
-Reference PepperDash Core eControlMethods Enum for valid values, (currently listed below).  Update to reflect the valid values for the plugin device being developed.
-
-```c#
-Cec
-Comm
-Cresnet
-IpId
-IpIdTcp
-IR
-None
-Ssh
-Tcpip
-Telnet
-Udp
-```
-
-##### Communication Method Note - ***DELETE WHEN UPDATING PLUGIN README***
-
-As of PepperDash Core 1.0.41, HTTP and HTTPS are not valid control mehtods and will throw an exception in the plugin factory if not properly handled.  The plugin template is currently setup to check the method before attempting to create the comms for the device.  When using HTTP or HTTPS you will need to create a custom comm object and modify the constructor as needed.
-
-For reference see the [Watt Box PDU Plugin](https://github.com/PepperDash-Engineering/epi-pdu-wattbox) as a working example of implementing both HTTP and standard socket communications.
-
-### Plugin Configuration Object
-
-Update the configuration object as needed for the plugin being developed.
-
-```json
-{
-	"devices": [
-		{
-			"key": "essentialsPluginKey",
-			"name": "Essentials Plugin Name",
-			"type": "essentialsPluginTypeName",
-			"group": "pluginDevices",
-			"properties": {
-				"control": {
-					"method": "See PepperDash.Core.eControlMethod for valid control methods",
-					"controlPortDevKey": "exampleControlPortDevKey",
-					"controlPortNumber": 1,
-					"comParams": {
-						"baudRate": 9600,
-						"dataBits": 8,
-						"stopBits": 1,
-						"parity": "None",
-						"protocol": "RS232",
-						"hardwareHandshake": "None",
-						"softwareHandshake": "None"
-					},
-					"tcpSshProperties": {
-						"address": "172.22.0.101",
-						"port": 22,
-						"username": "admin",
-						"password": "password",
-						"autoReconnect": true,
-						"autoReconnectIntervalMs": 10000
-					}
-				},
-				"pollTimeMs": 30000,
-				"warningTimeoutMs": 180000,
-				"errorTimeoutMs": 300000,
-				"pluginCollection": {
-					"item1": {
-						"name": "Item 1",
-						"value": 1
-					},
-					"item2": {
-						"name": "Item 2",
-						"value": 2
-					}
-				}
-			}
-		}		
-	]
-}
-```
-
-### Plugin Bridge Configuration Object
-
-Update the bridge configuration object as needed for the plugin being developed.
-
-```json
-{
-	"devices": [
-		{
-			"key": "essentialsPluginBridgeKey",
-			"name": "Essentials Plugin Bridge Name",
-			"group": "api",
-			"type": "eiscApiAdvanced",
-			"properties": {
-				"control": {
-					"ipid": "1A",
-					"tcpSshProperties": {
-						"address": "127.0.0.2",
-						"port": 0
-					}
-				},
-				"devices": [
-					{
-						"deviceKey": "essentialsPluginKey",
-						"joinStart": 1
-					}
-				]
-			}
-		}
-	]
-}
-```
-
-### SiMPL EISC Bridge Map
-
-The selection below documents the digital, analog, and serial joins used by the SiMPL EISC. Update the bridge join maps as needed for the plugin being developed.
-
-#### Digitals
-| dig-o (Input/Triggers)                | I/O | dig-i (Feedback) |
-|---------------------------------------|-----|------------------|
-|                                       | 1   | Is Online        |
-| Connect (Held) / Disconnect (Release) | 2   | Connected        |
-|                                       | 3   |                  |
-|                                       | 4   |                  |
-|                                       | 5   |                  |
-#### Analogs
-| an_o (Input/Triggers) | I/O | an_i (Feedback) |
-|-----------------------|-----|-----------------|
-|                       | 1   | Socket Status   |
-|                       | 2   | Monitor Status  |
-|                       | 3   |                 |
-|                       | 4   |                 |
-|                       | 5   |                 |
-
-
-#### Serials
-| serial-o (Input/Triggers) | I/O | serial-i (Feedback) |
-|---------------------------|-----|---------------------|
-|                           | 1   | Device Name         |
-|                           | 2   |                     |
-|                           | 3   |                     |
-|                           | 4   |                     |
-|                           | 5   |                     |
-
-<!-- START Minimum Essentials Framework Versions -->
-### Minimum Essentials Framework Versions
-
-- 1.6.5
-<!-- END Minimum Essentials Framework Versions -->
-<!-- START Supported Types -->
-### Supported Types
-
-- examplePluginDevice
-- examplePluginLogicDevice
-- examplePluginCrestronDevice
-<!-- END Supported Types -->
-<!-- START Join Maps -->
-### Join Maps
-
-#### Digitals
-
-| Join | Type (RW) | Description |
-| --- | --- | --- |
-| 1 | R | Is Online |
-
-#### Analogs
-
-| Join | Type (RW) | Description |
-| --- | --- | --- |
-| 1 | R | Socket SocketStatus |
-| 2 | R | Monitor Status |
-
-#### Serials
-
-| Join | Type (RW) | Description |
-| --- | --- | --- |
-| 1 | R | Device Name |
-<!-- END Join Maps -->
-<!-- START Interfaces Implemented -->
-
-<!-- END Interfaces Implemented -->
-<!-- START Base Classes -->
-### Base Classes
-
-- EssentialsBridgeableDevice
-- CrestronGenericBridgeableBaseDevice
-- JoinMapBaseAdvanced
-<!-- END Base Classes -->
-<!-- START Public Methods -->
-### Public Methods
-
-- public void SendText(string text)
-- public void SendBytes(byte[] bytes)
-- public void Poll()
-<!-- END Public Methods -->
-<!-- START Bool Feedbacks -->
-### Bool Feedbacks
-
-- ConnectFeedback
-- OnlineFeedback
-<!-- END Bool Feedbacks -->
-<!-- START Int Feedbacks -->
-### Int Feedbacks
-
-- SocketStatusFeedback
-- MonitorStatusFeedback
-<!-- END Int Feedbacks -->
-<!-- START String Feedbacks -->
-
-<!-- END String Feedbacks -->
+2.24.0
