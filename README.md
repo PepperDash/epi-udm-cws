@@ -537,10 +537,6 @@ The repository includes comprehensive mock plugins for testing without hardware:
 
 See [UdmCws-Epi/Testing/configurationFile.json](UdmCws-Epi/Testing/configurationFile.json) for a complete test configuration using mock plugins and real devices.
 
-### Deployment Guide
-
-See [UdmCws-Epi/Testing/TESTING_GUIDE.md](UdmCws-Epi/Testing/TESTING_GUIDE.md) for detailed testing instructions.
-
 ---
 
 ## Building from Source
@@ -591,7 +587,6 @@ GetPackages.BAT
 
 ## Documentation
 
-- **[TESTING_GUIDE.md](UdmCws-Epi/Testing/TESTING_GUIDE.md)** - Complete testing guide
 - **[Device Monitoring API.openapi.yaml](Device%20Monitoring%20API.openapi.yaml)** - OpenAPI 3.1 specification
 - **[LICENSE.md](LICENSE.md)** - MIT License
 
