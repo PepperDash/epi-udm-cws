@@ -72,6 +72,22 @@ namespace PepperDash.Plugin.UdmCws.Epi.StateBuilder
             // Try IEssentialsRoom interface first
             if (roomDevice is IEssentialsRoom essentialsRoom)
             {
+                // Check warming/cooling states first (transitioning)
+                if (essentialsRoom.IsWarmingUpFeedback?.BoolValue == true)
+                {
+                    Debug.LogMessage(LogEventLevel.Debug, "StandardPropertyPopulator: Room is warming up");
+                    standard.State = "On"; // Report as "On" during warmup for immediate feedback
+                    return;
+                }
+
+                if (essentialsRoom.IsCoolingDownFeedback?.BoolValue == true)
+                {
+                    Debug.LogMessage(LogEventLevel.Debug, "StandardPropertyPopulator: Room is cooling down");
+                    standard.State = "Off"; // Report as "Off" during cooldown for immediate feedback
+                    return;
+                }
+
+                // Normal on/off state
                 var onFeedbackValue = essentialsRoom.OnFeedback?.BoolValue;
                 Debug.LogMessage(LogEventLevel.Debug, "StandardPropertyPopulator: Room implements IEssentialsRoom, OnFeedback value: {OnFeedback}", onFeedbackValue);
                 standard.State = onFeedbackValue == true ? "On" : "Off";
