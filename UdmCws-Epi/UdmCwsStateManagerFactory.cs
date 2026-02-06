@@ -16,8 +16,14 @@ namespace PepperDash.Plugin.UdmCws
         [JsonProperty("apiVersion")]
         public string ApiVersion { get; set; }
 
+        [JsonProperty("psk")]
+        public string Psk { get; set; }
+
         [JsonProperty("feedbackMode")]
         public string FeedbackMode { get; set; }
+
+        [JsonProperty("routePrefix")]
+        public string RoutePrefix { get; set; }
 
         [JsonProperty("deviceMappings")]
         public List<DeviceMapping> DeviceMappings { get; set; }
@@ -31,7 +37,9 @@ namespace PepperDash.Plugin.UdmCws
         public UdmCwsPropertiesConfig()
         {
             ApiVersion = "1.0.0";
+            Psk = string.Empty;
             FeedbackMode = "deferred";
+            RoutePrefix = string.Empty;
             DeviceMappings = new List<DeviceMapping>();
             RoomStateActions = new RoomStateActions();
             StandardProperties = new StandardPropertiesConfig();
@@ -68,6 +76,8 @@ namespace PepperDash.Plugin.UdmCws
             var configuration = new UdmCwsConfiguration
             {
                 ApiVersion = propertiesConfig?.ApiVersion ?? "1.0.0",
+                Psk = propertiesConfig?.Psk ?? string.Empty,
+                RoutePrefix = propertiesConfig?.RoutePrefix ?? string.Empty,
                 DeviceMappings = propertiesConfig?.DeviceMappings ?? new List<DeviceMapping>(),
                 RoomStateActions = propertiesConfig?.RoomStateActions ?? new RoomStateActions(),
                 StandardProperties = propertiesConfig?.StandardProperties ?? new StandardPropertiesConfig()
@@ -85,6 +95,9 @@ namespace PepperDash.Plugin.UdmCws
 
             // Log configuration summary
             Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: API Version: {ApiVersion}", dc.Key, configuration.ApiVersion);
+            Debug.LogMessage(LogEventLevel.Debug, "[{Key}] Factory: PSK Configured: {PskConfigured}", dc.Key, !string.IsNullOrEmpty(configuration.Psk));
+            Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Route Prefix: {RoutePrefix}", dc.Key,
+                string.IsNullOrEmpty(configuration.RoutePrefix) ? "(default)" : configuration.RoutePrefix);
             Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Device mappings: {Count}", dc.Key, configuration.DeviceMappings.Count);
 
             if (configuration.RoomStateActions != null)

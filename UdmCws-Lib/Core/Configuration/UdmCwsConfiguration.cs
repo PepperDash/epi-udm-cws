@@ -14,6 +14,12 @@ namespace PepperDash.Plugin.UdmCws
         public string ApiVersion { get; set; } = "1.0.0";
 
         /// <summary>
+        /// Pre-shared key for request validation
+        /// Leave empty or null to disable PSK validation
+        /// </summary>
+        public string Psk { get; set; } = string.Empty;
+
+        /// <summary>
         /// Feedback mode for PATCH requests (deferred or immediate)
         /// </summary>
         public FeedbackMode FeedbackMode { get; set; } = FeedbackMode.Deferred;

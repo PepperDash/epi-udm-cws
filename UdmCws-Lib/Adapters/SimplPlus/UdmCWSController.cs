@@ -47,6 +47,34 @@ namespace PepperDash.Plugin.UdmCws
         }
 
         /// <summary>
+        /// Sets the API version for validation
+        /// Call this before Initialize()
+        /// </summary>
+        public static void SetApiVersion(SimplSharpString version)
+        {
+            if (_config == null)
+                _config = new UdmCwsConfig();
+
+            _config.ApiVersion = version.ToString();
+            CrestronConsole.PrintLine("UdmCWSController: API version set to '{0}'", _config.ApiVersion);
+        }
+
+        /// <summary>
+        /// Sets the pre-shared key for request authentication
+        /// Leave empty to disable PSK validation
+        /// Call this before Initialize()
+        /// </summary>
+        public static void SetPsk(SimplSharpString psk)
+        {
+            if (_config == null)
+                _config = new UdmCwsConfig();
+
+            _config.Psk = psk.ToString();
+            var pskConfigured = !string.IsNullOrEmpty(_config.Psk);
+            CrestronConsole.PrintLine("UdmCWSController: PSK {0}", pskConfigured ? "configured" : "not configured (no security)");
+        }
+
+        /// <summary>
         /// Sets the route prefix for multi-room support
         /// Example: "room1" creates route "/app01/udmcws/room1/roomstatus"
         /// Call this before Initialize()

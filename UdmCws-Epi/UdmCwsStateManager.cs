@@ -71,7 +71,12 @@ namespace PepperDash.Plugin.UdmCws
                 this.LogDebug("Crestron CWS server registered on {0}", prefix);
 
                 // Create config for handler
-                var handlerConfig = new UdmCwsConfig { FeedbackMode = _configuration.FeedbackMode };
+                var handlerConfig = new UdmCwsConfig
+                {
+                    FeedbackMode = _configuration.FeedbackMode,
+                    ApiVersion = _configuration.ApiVersion,
+                    Psk = _configuration.Psk
+                };
 
                 // Create handler from Lib (single CWS implementation)
                 _handler = new UdmCwsActionPathsHandler(handlerConfig);

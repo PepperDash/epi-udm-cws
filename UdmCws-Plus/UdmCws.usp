@@ -26,6 +26,8 @@ Comments: UDM-CWS endpoint for room status reporting and control
 
 // ---------- PARAMETERS ----------
 STRING_PARAMETER RoutePrefix[50];
+STRING_PARAMETER ApiVersion[50];
+STRING_PARAMETER Psk[255];
 
 INTEGER_PARAMETER iFeedbackMode;
 #BEGIN_PARAMETER_PROPERTIES iFeedbackMode
@@ -34,11 +36,11 @@ propList = { 0d, "Deferred (202)" }, { 1d, "Immediate (200)" };
 #END_PARAMETER_PROPERTIES
 
 // ---------- CONTROL INPUTS ----------
-DIGITAL_INPUT _SKIP_, _SKIP_, Enable;                  // Must be high for module to work
+DIGITAL_INPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, Enable;                  // Must be high for module to work
 DIGITAL_INPUT Init;                    // Pulse to initialize/sync all signals
 
 // ---------- OUTPUTS ----------
-DIGITAL_OUTPUT _SKIP_, _SKIP_, Initialized_fb;         // High when initialized and ready
+DIGITAL_OUTPUT _SKIP_, _SKIP_, _SKIP_, _SKIP_, Initialized_fb;         // High when initialized and ready
 DIGITAL_OUTPUT Server_Running;
 DIGITAL_OUTPUT ReportState_Request;    // Pulse when GET received (optional)
 STRING_OUTPUT Desired_RoomState;       // Desired room state from PATCH
@@ -190,6 +192,18 @@ FUNCTION Main()
 	
 	// Set feedback mode from parameter
 	UdmCWSController.SetFeedbackMode(iFeedbackMode);
+
+	// Set API version if specified (must be before Initialize)
+	IF (LEN(ApiVersion) > 0)
+	{
+		UdmCWSController.SetApiVersion(ApiVersion);
+	}
+
+	// Set PSK if specified (must be before Initialize)
+	IF (LEN(Psk) > 0)
+	{
+		UdmCWSController.SetPsk(Psk);
+	}
 
 	// Set route prefix if specified (must be before Initialize)
 	IF (LEN(RoutePrefix) > 0)

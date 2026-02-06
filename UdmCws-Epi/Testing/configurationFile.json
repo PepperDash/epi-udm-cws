@@ -120,6 +120,7 @@
         "properties": {
           "apiVersion": "1.0.0",
           "feedbackMode": "deferred",
+          "//routePrefix": "room1",
           "deviceMappings": [
             {
               "deviceKey": "codec-1",
@@ -154,7 +155,8 @@
               "getProperty": {
                 "deviceKey": "mock-room-1",
                 "propertyPath": "Activity"
-              }
+              },
+              "setDeviceKey": "mock-room-1"
             },
             "helpRequestMapping": {
               "deviceKey": "mock-room-1",
