@@ -37,14 +37,6 @@ namespace PepperDash.Plugin.UdmCws
         public List<DeviceMapping> DeviceMappings { get; set; }
 
         /// <summary>
-        /// DEPRECATED: Room state actions are no longer needed.
-        /// Room state changes now call IEssentialsRoom.Shutdown() and PowerOnToDefaultOrLastSource().
-        /// This property is kept for backward compatibility but is not used.
-        /// </summary>
-        [System.Obsolete("Room state actions are no longer used. Room state is handled by IEssentialsRoom methods.")]
-        public RoomStateActions RoomStateActions { get; set; }
-
-        /// <summary>
         /// Standard properties configuration
         /// </summary>
         public StandardPropertiesConfig StandardProperties { get; set; }
@@ -52,7 +44,6 @@ namespace PepperDash.Plugin.UdmCws
         public UdmCwsConfiguration()
         {
             DeviceMappings = new List<DeviceMapping>();
-            RoomStateActions = new RoomStateActions();
             StandardProperties = new StandardPropertiesConfig();
         }
     }
@@ -83,38 +74,6 @@ namespace PepperDash.Plugin.UdmCws
         /// Config-driven only - no device interface provides this
         /// </summary>
         public string Description { get; set; }
-    }
-
-    /// <summary>
-    /// DEPRECATED: Room state actions are no longer used.
-    /// Room state changes now call IEssentialsRoom.Shutdown() and PowerOnToDefaultOrLastSource().
-    /// The room itself manages which devices to power on/off.
-    /// This class is kept for backward compatibility only.
-    /// </summary>
-    [System.Obsolete("Room state actions are no longer used. Room state is handled by IEssentialsRoom methods.")]
-    public class RoomStateActions
-    {
-        /// <summary>
-        /// Device keys to power off when room state = "shutdown"
-        /// </summary>
-        public List<string> Shutdown { get; set; }
-
-        /// <summary>
-        /// Device keys to power on when room state = "active"
-        /// </summary>
-        public List<string> Active { get; set; }
-
-        /// <summary>
-        /// Device keys for standby state (custom handling)
-        /// </summary>
-        public List<string> Standby { get; set; }
-
-        public RoomStateActions()
-        {
-            Shutdown = new List<string>();
-            Active = new List<string>();
-            Standby = new List<string>();
-        }
     }
 
     /// <summary>
