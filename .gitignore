@@ -371,3 +371,6 @@ output/
 .DS_Store
 Thumbs.db
 SPlsWork/
+*_archive.zip
+*_compiled.zip
+*.smw.ASV
