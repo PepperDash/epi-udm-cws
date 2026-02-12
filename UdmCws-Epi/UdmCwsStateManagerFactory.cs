@@ -28,9 +28,6 @@ namespace PepperDash.Plugin.UdmCws
         [JsonProperty("deviceMappings")]
         public List<DeviceMapping> DeviceMappings { get; set; }
 
-        [JsonProperty("roomStateActions")]
-        public RoomStateActions RoomStateActions { get; set; }
-
         [JsonProperty("standardProperties")]
         public StandardPropertiesConfig StandardProperties { get; set; }
 
@@ -41,7 +38,6 @@ namespace PepperDash.Plugin.UdmCws
             FeedbackMode = "deferred";
             RoutePrefix = string.Empty;
             DeviceMappings = new List<DeviceMapping>();
-            RoomStateActions = new RoomStateActions();
             StandardProperties = new StandardPropertiesConfig();
         }
     }
@@ -79,7 +75,6 @@ namespace PepperDash.Plugin.UdmCws
                 Psk = propertiesConfig?.Psk ?? string.Empty,
                 RoutePrefix = propertiesConfig?.RoutePrefix ?? string.Empty,
                 DeviceMappings = propertiesConfig?.DeviceMappings ?? new List<DeviceMapping>(),
-                RoomStateActions = propertiesConfig?.RoomStateActions ?? new RoomStateActions(),
                 StandardProperties = propertiesConfig?.StandardProperties ?? new StandardPropertiesConfig()
             };
 
@@ -99,14 +94,6 @@ namespace PepperDash.Plugin.UdmCws
             Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Route Prefix: {RoutePrefix}", dc.Key,
                 string.IsNullOrEmpty(configuration.RoutePrefix) ? "(default)" : configuration.RoutePrefix);
             Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Device mappings: {Count}", dc.Key, configuration.DeviceMappings.Count);
-
-            if (configuration.RoomStateActions != null)
-            {
-                Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Shutdown actions: {ShutdownCount}",
-                    dc.Key, configuration.RoomStateActions.Shutdown?.Count ?? 0);
-                Debug.LogMessage(LogEventLevel.Information, "[{Key}] Factory: Active actions: {ActiveCount}",
-                    dc.Key, configuration.RoomStateActions.Active?.Count ?? 0);
-            }
 
             return new UdmCwsStateManager(dc.Key, configuration);
         }
