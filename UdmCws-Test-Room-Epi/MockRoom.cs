@@ -11,6 +11,7 @@ namespace UdmCws.Test.Room
     /// <summary>
     /// Simple mock room implementing IEssentialsRoom directly
     /// For testing UDM-CWS with 20 custom properties, help request, and activity
+    /// State changes are instant (no delays) for fast testing
     /// </summary>
     public class MockRoom : EssentialsDevice, IEssentialsRoom
     {
@@ -138,7 +139,9 @@ namespace UdmCws.Test.Room
                 CustomProperties["property19"] = _config.Property19 ?? GenerateRandomValue();
                 CustomProperties["property20"] = _config.Property20 ?? GenerateRandomValue();
 
-                _currentActivity = _config.DefaultActivity ?? "Meeting";
+                _currentActivity = _config.DefaultActivity ?? "idle";
+                Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                    "MockRoom: Initial activity set to: {Activity}", _currentActivity);
             }
         }
 
@@ -157,18 +160,23 @@ namespace UdmCws.Test.Room
         {
             if (_isOn)
             {
-                // Power off devices first
+                // Set activity to off when room shuts down
+                SetActivity("off");
+
+                // Power off devices
                 PowerOffDevices();
 
+                // Show cooling state first (for feedback visibility)
                 _isCooling = true;
+                _isOn = true;
                 IsCoolingDownFeedback.FireUpdate();
-                new CTimer(_ =>
-                {
-                    _isCooling = false;
-                    _isOn = false;
-                    IsCoolingDownFeedback.FireUpdate();
-                    OnFeedback.FireUpdate();
-                }, 2000);
+                OnFeedback.FireUpdate();
+
+                // Then immediately transition to off state (instant for mock)
+                _isCooling = false;
+                _isOn = false;
+                IsCoolingDownFeedback.FireUpdate();
+                OnFeedback.FireUpdate();
             }
         }
 
@@ -176,18 +184,30 @@ namespace UdmCws.Test.Room
         {
             if (!_isOn)
             {
+                // Show warming state first (for feedback visibility)
                 _isWarming = true;
+                _isOn = false;
                 IsWarmingUpFeedback.FireUpdate();
-                new CTimer(_ =>
-                {
-                    _isWarming = false;
-                    _isOn = true;
-                    IsWarmingUpFeedback.FireUpdate();
-                    OnFeedback.FireUpdate();
+                OnFeedback.FireUpdate();
 
-                    // Power on devices after room is ready
-                    PowerOnDevices();
-                }, 2000);
+                // Then immediately transition to on state (instant for mock)
+                _isWarming = false;
+                _isOn = true;
+                IsWarmingUpFeedback.FireUpdate();
+                OnFeedback.FireUpdate();
+
+                // Set default activity to "present" if not already set or if currently "off"
+                if (string.IsNullOrEmpty(_currentActivity) ||
+                    _currentActivity.Equals("idle", StringComparison.OrdinalIgnoreCase) ||
+                    _currentActivity.Equals("off", StringComparison.OrdinalIgnoreCase))
+                {
+                    SetActivity("present");
+                }
+                else
+                {
+                    // Power on devices based on current activity
+                    HandleActivityChange(_currentActivity);
+                }
             }
         }
 
@@ -225,8 +245,212 @@ namespace UdmCws.Test.Room
 
         public void SetActivity(string activity)
         {
+            var previousActivity = _currentActivity;
             _currentActivity = activity;
             ActivityFeedback.FireUpdate();
+
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                "MockRoom: Activity changed from {Previous} to {Current}, Room is {RoomState}",
+                previousActivity, activity, _isOn ? "ON" : "OFF");
+
+            // If activity is set to "off", shut down the room
+            if (activity?.Equals("off", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                if (_isOn)
+                {
+                    Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                        "MockRoom: Activity set to OFF - shutting down room");
+
+                    // Power off devices
+                    PowerOffDevices();
+
+                    // Show cooling state first (for feedback visibility)
+                    _isCooling = true;
+                    _isOn = true;
+                    IsCoolingDownFeedback.FireUpdate();
+                    OnFeedback.FireUpdate();
+
+                    // Then immediately transition to off state (instant for mock)
+                    _isCooling = false;
+                    _isOn = false;
+                    IsCoolingDownFeedback.FireUpdate();
+                    OnFeedback.FireUpdate();
+                }
+                return;
+            }
+
+            // Handle activity-based device control when room is on
+            if (_isOn)
+            {
+                Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                    "MockRoom: Calling HandleActivityChange for activity {Activity}", activity);
+                HandleActivityChange(activity);
+            }
+            else
+            {
+                Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                    "MockRoom: Skipping HandleActivityChange - room is OFF");
+            }
+        }
+
+        private void HandleActivityChange(string activity)
+        {
+            if (_config?.DeviceKeys == null)
+            {
+                Debug.LogMessage(Serilog.Events.LogEventLevel.Warning,
+                    "MockRoom: No device keys configured - cannot handle activity change");
+                return;
+            }
+
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                "MockRoom: Handling activity change to {Activity} for {DeviceCount} devices",
+                activity, _config.DeviceKeys.Length);
+
+            // Simple demo logic for common activities
+            var lowerActivity = activity?.ToLower() ?? "";
+
+            foreach (var deviceKey in _config.DeviceKeys)
+            {
+                var device = DeviceManager.GetDeviceForKey(deviceKey);
+                if (device == null)
+                {
+                    Debug.LogMessage(Serilog.Events.LogEventLevel.Warning,
+                        "MockRoom: Device not found: {DeviceKey}", deviceKey);
+                    continue;
+                }
+
+                if (device is IHasPowerControlWithFeedback powerDevice)
+                {
+                    var shouldBeOn = ShouldDeviceBeOnForActivity(deviceKey, lowerActivity);
+                    var isOn = powerDevice.PowerIsOnFeedback.BoolValue;
+                    var isWarming = (device is IWarmingCooling wc) && wc.IsWarmingUpFeedback.BoolValue;
+                    var isCooling = (device is IWarmingCooling wc2) && wc2.IsCoolingDownFeedback.BoolValue;
+
+                    Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                        "MockRoom: Device {DeviceKey} - ShouldBeOn={ShouldBeOn}, IsOn={IsOn}, IsWarming={IsWarming}, IsCooling={IsCooling}",
+                        deviceKey, shouldBeOn, isOn, isWarming, isCooling);
+
+                    if (shouldBeOn && !isOn && !isWarming)
+                    {
+                        Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                            "MockRoom: Powering ON {DeviceKey} for activity {Activity}", deviceKey, activity);
+                        powerDevice.PowerOn();
+
+                        // Set source immediately for mock - no warm up delay
+                        SetDeviceSourceForActivity(device, deviceKey, lowerActivity);
+                    }
+                    else if (!shouldBeOn && isOn && !isCooling)
+                    {
+                        Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                            "MockRoom: Powering OFF {DeviceKey} for activity {Activity}", deviceKey, activity);
+                        powerDevice.PowerOff();
+                    }
+                    else if (shouldBeOn && isOn)
+                    {
+                        Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                            "MockRoom: Device {DeviceKey} already on, switching source for activity {Activity}",
+                            deviceKey, activity);
+                        // Device already on, just switch source if needed
+                        SetDeviceSourceForActivity(device, deviceKey, lowerActivity);
+                    }
+                }
+                else
+                {
+                    Debug.LogMessage(Serilog.Events.LogEventLevel.Warning,
+                        "MockRoom: Device {DeviceKey} does not implement IHasPowerControlWithFeedback", deviceKey);
+                }
+            }
+        }
+
+        private bool ShouldDeviceBeOnForActivity(string deviceKey, string activity)
+        {
+            var key = deviceKey.ToLower();
+
+            // idle or off = everything off
+            if (activity == "idle" || activity == "off")
+                return false;
+
+            // call = displays, codec, camera, audio, lighting, switcher, mics
+            if (activity == "call")
+            {
+                return key.Contains("display-front") || key.Contains("codec") || key.Contains("camera") ||
+                       key.Contains("dsp") || key.Contains("audio") || key.Contains("mic") ||
+                       key.Contains("lighting") || key.Contains("switcher");
+            }
+
+            // present = all displays, projector, doc camera, audio, lighting, switcher, mics
+            if (activity == "present")
+            {
+                return key.Contains("display") || key.Contains("projector") || key.Contains("doc-camera") ||
+                       key.Contains("dsp") || key.Contains("audio") || key.Contains("mic") ||
+                       key.Contains("lighting") || key.Contains("switcher");
+            }
+
+            // Unknown activity - keep devices on
+            return true;
+        }
+
+        private void SetDeviceSourceForActivity(IKeyed device, string deviceKey, string activity)
+        {
+            var key = deviceKey.ToLower();
+
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                "MockRoom: SetDeviceSourceForActivity - DeviceKey={DeviceKey}, Activity={Activity}",
+                deviceKey, activity);
+
+            // Only set sources for displays
+            if (!key.Contains("display"))
+            {
+                Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                    "MockRoom: Device {DeviceKey} is not a display - skipping source change", deviceKey);
+                return;
+            }
+
+            string videoSource = null;
+            string audioSource = null;
+
+            // call = codec source on displays
+            if (activity == "call")
+            {
+                videoSource = "Codec";
+                audioSource = "Codec";
+            }
+            // present = Apple TV source on displays
+            else if (activity == "present")
+            {
+                videoSource = "Apple TV";
+                audioSource = "Apple TV";
+            }
+
+            Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                "MockRoom: Selected source for activity {Activity}: Video={Video}, Audio={Audio}",
+                activity, videoSource ?? "null", audioSource ?? "null");
+
+            // Use reflection to call SetSource on mock devices (keeps plugins independent)
+            if (videoSource != null)
+            {
+                var setSourceMethod = device.GetType().GetMethod("SetSource");
+                if (setSourceMethod != null)
+                {
+                    try
+                    {
+                        setSourceMethod.Invoke(device, new object[] { videoSource, audioSource });
+                        Debug.LogMessage(Serilog.Events.LogEventLevel.Information,
+                            "MockRoom: Successfully set {DeviceKey} source to {Source} for activity {Activity}",
+                            deviceKey, videoSource, activity);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogMessage(Serilog.Events.LogEventLevel.Warning,
+                            "MockRoom: Could not set source on {DeviceKey}: {Error}", deviceKey, ex.Message);
+                    }
+                }
+                else
+                {
+                    Debug.LogMessage(Serilog.Events.LogEventLevel.Warning,
+                        "MockRoom: Device {DeviceKey} does not have SetSource method", deviceKey);
+                }
+            }
         }
 
         public string GetCustomProperty(string propertyKey)

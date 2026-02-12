@@ -1,0 +1,463 @@
+{
+  "template": {
+    "info": {
+      "comment": "UDM-CWS Demo Configuration - Realistic AV System with Activity-Based Control",
+      "version": "2.24.0",
+      "description": "Comprehensive demo environment featuring real devices (codec, DSP) and mock AV equipment with realistic custom properties. Mock devices respond to room state and activity changes.",
+      "systemType": "custom",
+      "processorType": "rmc4"
+    },
+    "devices": [
+      {
+        "key": "processor",
+        "name": "Control Processor",
+        "type": "rmc4",
+        "group": "processor",
+        "properties": {}
+      },
+      {
+        "key": "codec-1",
+        "name": "Main Room Codec",
+        "type": "ciscoRoomOS",
+        "group": "videoCodec",
+        "properties": {
+          "control": {
+            "endOfLineString": "\n",
+            "deviceReadyResponsePattern": "",
+            "method": "Ssh",
+            "tcpSshProperties": {
+              "address": "10.11.50.135",
+              "port": 22,
+              "autoReconnect": true,
+              "AutoReconnectIntervalMs": 10000,
+              "username": "admin",
+              "password": "cr3str0n"
+            }
+          },
+          "phonebookDisableAutoPopulate": true,
+          "phonebookMode": "Corporate",
+          "showSelfViewByDefault": true,
+          "sharing": {
+            "autoShareContentWhileInCall": false,
+            "defaultShareLocalOnly": true
+          },
+          "joinableCooldownSeconds": 0,
+          "phonebookResultsLimit": 50,
+          "defaultTrackingMode": "SpeakerTrack",
+          "overrideMeetingsLimit": true,
+          "cameraInfo": [
+            {
+              "CameraNumber": 1,
+              "Name": "Main Camera"
+            }
+          ]
+        }
+      },
+      {
+        "key": "dsp-1",
+        "name": "Room DSP",
+        "type": "tesiraDsp",
+        "group": "dsp",
+        "properties": {
+          "control": {
+            "endOfLineString": "\n",
+            "deviceReadyResponsePattern": "",
+            "method": "ssh",
+            "tcpSshProperties": {
+              "address": "10.11.50.192",
+              "port": 22,
+              "autoReconnect": true,
+              "AutoReconnectIntervalMs": 10000,
+              "username": "default",
+              "password": "",
+              "disableSshEcho": true
+            }
+          }
+        }
+      },
+      {
+        "key": "occupancy-1",
+        "name": "Crestron Occupancy Sensor (CEN-ODT-C-POE)",
+        "type": "cenodtcpoe",
+        "group": "occupancy",
+        "properties": {
+          "control": {
+            "method": "ipid",
+            "ipid": "0x07",
+            "tcpSshProperties": {
+              "address": "10.11.50.51",
+              "port": 41794
+            }
+          }
+        }
+      },
+      {
+        "key": "mock-occupancy-1",
+        "name": "Mock Occupancy Sensor (Room State)",
+        "type": "mockoccupancy",
+        "group": "occupancy",
+        "properties": {
+          "roomDeviceKey": "demo-room"
+        }
+      },
+      {
+        "key": "display-front",
+        "name": "Front Display (Samsung 85\")",
+        "type": "mockdevice",
+        "group": "display",
+        "properties": {
+          "activityDevices": ["call", "present"],
+          "videoSourceOn": "HDMI 1",
+          "audioSourceOn": "HDMI 1",
+          "customProperty1": "4K Resolution",
+          "customProperty2": "85 inches",
+          "customProperty3": "Samsung QN85",
+          "customProperty4": "Firmware: v2.4.1",
+          "customProperty5": "Mounted - Center Wall"
+        }
+      },
+      {
+        "key": "display-left",
+        "name": "Left Display (LG 65\")",
+        "type": "mockdevice",
+        "group": "display",
+        "properties": {
+          "activityDevices": ["present"],
+          "videoSourceOn": "DM Output 2",
+          "audioSourceOn": "None",
+          "customProperty1": "1080p Resolution",
+          "customProperty2": "65 inches",
+          "customProperty3": "LG 65UM7300",
+          "customProperty4": "Firmware: v5.30.05",
+          "customProperty5": "Mounted - Left Wall"
+        }
+      },
+      {
+        "key": "display-right",
+        "name": "Right Display (LG 65\")",
+        "type": "mockdevice",
+        "group": "display",
+        "properties": {
+          "activityDevices": ["present"],
+          "videoSourceOn": "DM Output 3",
+          "audioSourceOn": "None",
+          "customProperty1": "1080p Resolution",
+          "customProperty2": "65 inches",
+          "customProperty3": "LG 65UM7300",
+          "customProperty4": "Firmware: v5.30.05",
+          "customProperty5": "Mounted - Right Wall"
+        }
+      },
+      {
+        "key": "codec-mock",
+        "name": "Video Codec (Cisco Webex)",
+        "type": "mockdevice",
+        "group": "videoCodec",
+        "properties": {
+          "activityDevices": ["call"],
+          "videoSourceOn": "Camera 1",
+          "audioSourceOn": "Ceiling Mics",
+          "customProperty1": "SIP Registered",
+          "customProperty2": "webex.room@company.com",
+          "customProperty3": "Bandwidth: 4 Mbps",
+          "customProperty4": "Firmware: ce11.2.1",
+          "customProperty5": "License: Active"
+        }
+      },
+      {
+        "key": "camera-main",
+        "name": "PTZ Camera (Cisco Precision 60)",
+        "type": "mockdevice",
+        "group": "camera",
+        "properties": {
+          "activityDevices": ["call"],
+          "videoSourceOn": "Active",
+          "audioSourceOn": "None",
+          "customProperty1": "Preset: Speaker Track",
+          "customProperty2": "Zoom: 1.5x",
+          "customProperty3": "Pan: -15°",
+          "customProperty4": "Tilt: 5°",
+          "customProperty5": "Tracking: Enabled"
+        }
+      },
+      {
+        "key": "dsp-mock",
+        "name": "Audio Processor (Biamp Tesira)",
+        "type": "mockdevice",
+        "group": "dsp",
+        "properties": {
+          "activityDevices": ["call", "present"],
+          "videoSourceOn": "None",
+          "audioSourceOn": "Mic Array + HDMI",
+          "customProperty1": "Matrix: 8x8",
+          "customProperty2": "Room Combine: Off",
+          "customProperty3": "Echo Cancel: On",
+          "customProperty4": "Firmware: v4.3.2",
+          "customProperty5": "Preset: Presentation"
+        }
+      },
+      {
+        "key": "lighting-control",
+        "name": "Lighting Controller (Lutron)",
+        "type": "mockdevice",
+        "group": "lighting",
+        "properties": {
+          "activityDevices": ["call", "present"],
+          "videoSourceOn": "None",
+          "audioSourceOn": "None",
+          "customProperty1": "Scene: Video Conference",
+          "customProperty2": "Level: 75%",
+          "customProperty3": "Zones: 4",
+          "customProperty4": "Daylight Sensor: Active",
+          "customProperty5": "Occupancy Link: Enabled"
+        }
+      },
+      {
+        "key": "av-switcher",
+        "name": "AV Matrix Switcher (Crestron DM)",
+        "type": "mockdevice",
+        "group": "switcher",
+        "properties": {
+          "activityDevices": ["call", "present"],
+          "videoSourceOn": "Input 3 -> All Outputs",
+          "audioSourceOn": "Input 3 Embedded",
+          "customProperty1": "Matrix: 8x8",
+          "customProperty2": "HDCP: 2.2",
+          "customProperty3": "Resolution: 4K60",
+          "customProperty4": "Firmware: v2.5001.0029",
+          "customProperty5": "EDID: Auto"
+        }
+      },
+      {
+        "key": "mic-system",
+        "name": "Microphone System (Shure)",
+        "type": "mockdevice",
+        "group": "audio",
+        "properties": {
+          "activityDevices": ["call", "present"],
+          "videoSourceOn": "None",
+          "audioSourceOn": "Dante Output",
+          "customProperty1": "Mics Active: 4 of 8",
+          "customProperty2": "Auto Mix: On",
+          "customProperty3": "Gain: +12dB",
+          "customProperty4": "Battery: N/A (Wired)",
+          "customProperty5": "Pattern: Cardioid"
+        }
+      },
+      {
+        "key": "doc-camera",
+        "name": "Document Camera (Elmo)",
+        "type": "mockdevice",
+        "group": "camera",
+        "properties": {
+          "activityDevices": ["present"],
+          "videoSourceOn": "Document Surface",
+          "audioSourceOn": "None",
+          "customProperty1": "Resolution: 1080p",
+          "customProperty2": "Zoom: 12x Optical",
+          "customProperty3": "Light: Auto",
+          "customProperty4": "Connection: USB-C",
+          "customProperty5": "Arm Position: Extended"
+        }
+      },
+      {
+        "key": "projector",
+        "name": "Ceiling Projector (Epson)",
+        "type": "mockdevice",
+        "group": "display",
+        "properties": {
+          "activityDevices": ["present"],
+          "videoSourceOn": "HDMI 2",
+          "audioSourceOn": "None",
+          "customProperty1": "Lumens: 5000",
+          "customProperty2": "Lamp Hours: 1250",
+          "customProperty3": "Resolution: WUXGA",
+          "customProperty4": "Lens: Standard",
+          "customProperty5": "Filter: 500 hours remain"
+        }
+      },
+      {
+        "key": "udmCws",
+        "name": "UDM-CWS Room Monitoring",
+        "type": "udmcws",
+        "group": "plugin",
+        "properties": {
+          "apiVersion": "1.0.0",
+          "feedbackMode": "defferred",
+          "routePrefix": "room1",
+          "psk": "test-secret-psk",
+          "deviceMappings": [
+            {
+              "deviceKey": "codec-1",
+              "deviceIndex": 1,
+              "customLabel": "Cisco Codec (Real)",
+              "description": "Main room Cisco video codec - real device for live demo"
+            },
+            {
+              "deviceKey": "dsp-1",
+              "deviceIndex": 2,
+              "customLabel": "Biamp DSP (Real)",
+              "description": "Biamp Tesira audio processor - real device for live demo"
+            },
+            {
+              "deviceKey": "display-front",
+              "deviceIndex": 3,
+              "customLabel": "Front Display",
+              "description": "85\" Samsung main display - powers on for calls and presentations"
+            },
+            {
+              "deviceKey": "display-left",
+              "deviceIndex": 4,
+              "customLabel": "Left Display",
+              "description": "65\" LG side display - powers on for presentations"
+            },
+            {
+              "deviceKey": "display-right",
+              "deviceIndex": 5,
+              "customLabel": "Right Display",
+              "description": "65\" LG side display - powers on for presentations"
+            },
+            {
+              "deviceKey": "codec-mock",
+              "deviceIndex": 6,
+              "customLabel": "Video Codec",
+              "description": "Cisco Webex codec - powers on for video calls"
+            },
+            {
+              "deviceKey": "camera-main",
+              "deviceIndex": 7,
+              "customLabel": "PTZ Camera",
+              "description": "Cisco Precision 60 camera - active during calls"
+            },
+            {
+              "deviceKey": "dsp-mock",
+              "deviceIndex": 8,
+              "customLabel": "Audio Processor",
+              "description": "Biamp Tesira audio DSP - active during calls and presentations"
+            },
+            {
+              "deviceKey": "lighting-control",
+              "deviceIndex": 9,
+              "customLabel": "Lighting System",
+              "description": "Lutron lighting control - adjusts scenes based on activity"
+            },
+            {
+              "deviceKey": "av-switcher",
+              "deviceIndex": 10,
+              "customLabel": "AV Switcher",
+              "description": "Crestron DM matrix switcher - routes sources based on activity"
+            },
+            {
+              "deviceKey": "mic-system",
+              "deviceIndex": 11,
+              "customLabel": "Microphone Array",
+              "description": "Shure ceiling microphone system - active during calls and presentations"
+            },
+            {
+              "deviceKey": "doc-camera",
+              "deviceIndex": 12,
+              "customLabel": "Document Camera",
+              "description": "Elmo document camera - available for presentations"
+            },
+            {
+              "deviceKey": "projector",
+              "deviceIndex": 13,
+              "customLabel": "Ceiling Projector",
+              "description": "Epson laser projector - powers on for presentations"
+            }
+          ],
+          "standardProperties": {
+            "version": "1.0.0",
+            "roomDeviceKey": "demo-room",
+            "occupancyDeviceKey": "mock-occupancy-1",
+            "activityMapping": {
+              "getProperty": {
+                "deviceKey": "demo-room",
+                "propertyPath": "Activity"
+              },
+              "setDeviceKey": "demo-room"
+            },
+            "helpRequestMapping": {
+              "deviceKey": "demo-room",
+              "propertyPath": "HelpRequest"
+            },
+            "customPropertyMappings": [
+              { "propertyKey": "property1", "label": "Front Display Resolution", "mapping": { "deviceKey": "display-front", "propertyPath": "CustomProperty1" } },
+              { "propertyKey": "property2", "label": "Front Display Model", "mapping": { "deviceKey": "display-front", "propertyPath": "CustomProperty3" } },
+              { "propertyKey": "property3", "label": "Codec SIP Address", "mapping": { "deviceKey": "codec-mock", "propertyPath": "CustomProperty2" } },
+              { "propertyKey": "property4", "label": "Codec License Status", "mapping": { "deviceKey": "codec-mock", "propertyPath": "CustomProperty5" } },
+              { "propertyKey": "property5", "label": "Camera Preset", "mapping": { "deviceKey": "camera-main", "propertyPath": "CustomProperty1" } },
+              { "propertyKey": "property6", "label": "Camera Tracking", "mapping": { "deviceKey": "camera-main", "propertyPath": "CustomProperty5" } },
+              { "propertyKey": "property7", "label": "DSP Matrix Size", "mapping": { "deviceKey": "dsp-mock", "propertyPath": "CustomProperty1" } },
+              { "propertyKey": "property8", "label": "DSP Echo Cancel", "mapping": { "deviceKey": "dsp-mock", "propertyPath": "CustomProperty3" } },
+              { "propertyKey": "property9", "label": "Lighting Scene", "mapping": { "deviceKey": "lighting-control", "propertyPath": "CustomProperty1" } },
+              { "propertyKey": "property10", "label": "Lighting Level", "mapping": { "deviceKey": "lighting-control", "propertyPath": "CustomProperty2" } },
+              { "propertyKey": "property11", "label": "Switcher Routing", "mapping": { "deviceKey": "av-switcher", "propertyPath": "CustomProperty1" } },
+              { "propertyKey": "property12", "label": "Switcher Resolution", "mapping": { "deviceKey": "av-switcher", "propertyPath": "CustomProperty3" } },
+              { "propertyKey": "property13", "label": "Microphones Active", "mapping": { "deviceKey": "mic-system", "propertyPath": "CustomProperty1" } },
+              { "propertyKey": "property14", "label": "Mic Auto Mix", "mapping": { "deviceKey": "mic-system", "propertyPath": "CustomProperty2" } },
+              { "propertyKey": "property15", "label": "Projector Lamp Hours", "mapping": { "deviceKey": "projector", "propertyPath": "CustomProperty2" } },
+              { "propertyKey": "property16", "label": "Projector Filter Status", "mapping": { "deviceKey": "projector", "propertyPath": "CustomProperty5" } },
+              { "propertyKey": "property17", "label": "Left Display Firmware", "mapping": { "deviceKey": "display-left", "propertyPath": "CustomProperty4" } },
+              { "propertyKey": "property18", "label": "Doc Camera Zoom", "mapping": { "deviceKey": "doc-camera", "propertyPath": "CustomProperty2" } },
+              { "propertyKey": "property19", "label": "Codec In Call (Real)", "mapping": { "deviceKey": "codec-1", "propertyPath": "IsInCall" } },
+              { "propertyKey": "property20", "label": "Room Occupancy", "mapping": { "deviceKey": "mock-occupancy-1", "propertyPath": "RoomIsOccupiedFeedback.BoolValue" } }
+            ]
+          }
+        }
+      }
+    ],
+    "rooms": [
+      {
+        "key": "demo-room",
+        "name": "Executive Conference Room - Building A",
+        "type": "mockroom",
+        "properties": {
+          "helpRequestMessage": "Technical assistance requested in Executive Conference Room A",
+          "defaultActivity": "Off",
+          "deviceKeys": [
+            "display-front",
+            "display-left",
+            "display-right",
+            "codec-mock",
+            "camera-main",
+            "dsp-mock",
+            "lighting-control",
+            "av-switcher",
+            "mic-system",
+            "doc-camera",
+            "projector"
+          ]
+        }
+      }
+    ],
+    "sourceLists": {
+      "demo-room": {
+        "codec-1": {
+          "sourceKey": "codec-1",
+          "type": "route",
+          "name": "Cisco Codec",
+          "order": 1,
+          "includeInSourceList": true
+        },
+        "apple-tv": {
+          "sourceKey": "apple-tv",
+          "type": "route",
+          "name": "Apple TV",
+          "order": 2,
+          "includeInSourceList": true
+        }
+      }
+    },
+    "destinationLists": {
+      "demo-room": {}
+    },
+    "audioControlPointLists": {
+      "demo-room": {
+        "levelControls": {},
+        "presets": {}
+      }
+    }
+  },
+  "system": {}
+}
