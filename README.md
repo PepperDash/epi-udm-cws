@@ -615,3 +615,157 @@ This project is licensed under the MIT License - see [LICENSE.md](LICENSE.md) fo
 ## Minimum Essentials Framework Version
 
 2.24.0
+<!-- START Minimum Essentials Framework Versions -->
+### Minimum Essentials Framework Versions
+
+- 2.0.0
+- 2.24.0
+- 2.24.0
+- 2.24.0
+<!-- END Minimum Essentials Framework Versions -->
+<!-- START Config Example -->
+### Config Example
+
+```json
+{
+    "key": "GeneratedKey",
+    "uid": 1,
+    "name": "GeneratedName",
+    "type": "UdmCwsStateManager",
+    "group": "Group",
+    "properties": {
+        "Property1": "SampleString",
+        "Property2": "SampleString",
+        "Property3": "SampleString",
+        "Property4": "SampleString",
+        "Property5": "SampleString",
+        "Property6": "SampleString",
+        "Property7": "SampleString",
+        "Property8": "SampleString",
+        "Property9": "SampleString",
+        "Property10": "SampleString",
+        "Property11": "SampleString",
+        "Property12": "SampleString",
+        "Property13": "SampleString",
+        "Property14": "SampleString",
+        "Property15": "SampleString",
+        "Property16": "SampleString",
+        "Property17": "SampleString",
+        "Property18": "SampleString",
+        "Property19": "SampleString",
+        "Property20": "SampleString",
+        "HelpRequestMessage": "SampleString",
+        "DefaultActivity": "SampleString",
+        "DeviceKeys": "SampleValue"
+    }
+}
+```
+<!-- END Config Example -->
+<!-- START Supported Types -->
+### Supported Types
+
+- UdmCwsStateManager
+- udmcws
+<!-- END Supported Types -->
+<!-- START Join Maps -->
+
+<!-- END Join Maps -->
+<!-- START Interfaces Implemented -->
+### Interfaces Implemented
+
+- IHttpCwsHandler
+- IOccupancyStatusProvider
+- IHasPowerControlWithFeedback
+- IWarmingCooling
+- ICommunicationMonitor
+- IUsageTracking
+- IRoutingSink
+- IEssentialsRoom
+<!-- END Interfaces Implemented -->
+<!-- START Base Classes -->
+### Base Classes
+
+- EventArgs
+- WebRequestHandlerBase
+- EssentialsDevice
+- EssentialsRoomPropertiesConfig
+<!-- END Base Classes -->
+<!-- START Public Methods -->
+### Public Methods
+
+- public State BuildState()
+- public string ExtractDesiredRoomState(State desiredState)
+- public string ExtractDesiredRoomActivity(State desiredState)
+- public void SetDeviceLabel(int index, string value)
+- public void SetDeviceStatus(int index, string value)
+- public void SetDeviceDescription(int index, string value)
+- public void SetDeviceVideoSource(int index, string value)
+- public void SetDeviceAudioSource(int index, string value)
+- public void SetDeviceUsage(int index, ushort value)
+- public void SetDeviceError(int index, string value)
+- public void SetCustomLabel(int index, string value)
+- public void SetCustomValue(int index, string value)
+- public void SetStandardVersion(string value)
+- public void SetStandardState(string value)
+- public void SetStandardError(string value)
+- public void SetStandardOccupancy(bool value)
+- public void SetStandardHelpRequest(string value)
+- public void SetStandardActivity(string value)
+- public void AddRoute(HttpCwsServer server, string routePrefix = "")
+- public void ProcessRequest(HttpCwsContext context)
+- public void ExecuteStateChange(string desiredState, string desiredActivity)
+- public void PopulateState(State state)
+- public void SetActivity(string desiredActivity)
+- public void PopulateStandardProperties(StandardProperties standard)
+- public void PopulateActivity(StandardProperties standard)
+- public void PopulateHelpRequest(StandardProperties standard)
+- public void PopulateCustomProperties(Dictionary<string, CustomProperties> customProps)
+- public void SetActivity(string desiredActivity)
+- public void PopulateRoutingSources(object device, DeviceStatus status)
+- public void PopulateDeviceProperties(object device, DeviceStatus status, DeviceMapping mapping)
+- public void CompilePropertyGetter(string cacheKey, object device, string propertyPath)
+- public void CacheMethod(string cacheKey, object device, string methodName)
+- public object GetPropertyValue(string cacheKey, object device)
+- public void InvokeMethod(string cacheKey, object device, params object[] parameters)
+- public void Initialize(UdmCwsConfiguration config)
+- public string GetMappedValue(string cacheKey, PropertyMapping mapping)
+- public void SetActivity(ActivityMapping mapping, string desiredActivity)
+- public void SetOccupied(bool occupied)
+- public void SetAutoToggle(bool enabled)
+- public void PowerOn()
+- public void PowerOff()
+- public void PowerToggle()
+- public bool ShouldBeOnForActivity(string activity)
+- public void SetSource(string videoSource, string audioSource = null)
+- public void StartShutdown(eShutdownType type)
+- public void Shutdown()
+- public void PowerOnToDefaultOrLastSource()
+- public void SetActivity(string activity)
+- public string GetCustomProperty(string propertyKey)
+- public void SetConfig(DeviceConfig config)
+- public bool RunDefaultPresentRoute()
+- public void RunRouteAction(string routeKey, string sourceListKey)
+- public void RunDefaultCallRoute()
+<!-- END Public Methods -->
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- RoomIsOccupiedFeedback
+- PowerIsOnFeedback
+- IsWarmingUpFeedback
+- IsCoolingDownFeedback
+- OnFeedback
+- IsWarmingUpFeedback
+- IsCoolingDownFeedback
+<!-- END Bool Feedbacks -->
+<!-- START Int Feedbacks -->
+
+<!-- END Int Feedbacks -->
+<!-- START String Feedbacks -->
+### String Feedbacks
+
+- ErrorFeedback
+- VideoSourceFeedback
+- AudioSourceFeedback
+- ActivityFeedback
+<!-- END String Feedbacks -->
