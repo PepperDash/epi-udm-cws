@@ -82,11 +82,13 @@ Import-Module Posh-SSH -MinimumVersion 3.0 -ErrorAction Stop
 # --- Artifacts ---------------------------------------------------------------------------
 if ($Build) {
     Write-Step 'Building plugins'
+    # Native exit codes don't trip $ErrorActionPreference, so check each build.
     dotnet build (Join-Path $repoRoot 'UdmCws.4Series.sln') -c Release -v q
+    if ($LASTEXITCODE) { throw 'Build failed: UdmCws.4Series.sln' }
     foreach ($p in $plugins | Where-Object { $_ -ne 'UdmCws-Epi' }) {
         dotnet build (Join-Path $repoRoot "$p/$p.csproj") -c Release -v q
+        if ($LASTEXITCODE) { throw "Build failed: $p" }
     }
-    if ($LASTEXITCODE) { throw 'Build failed.' }
 }
 $cplz = foreach ($p in $plugins) {
     $f = Get-ChildItem $outputDir -Filter "$p.*.cplz" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
