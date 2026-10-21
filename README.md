@@ -544,15 +544,47 @@ See [UdmCws-Test-Configs/configurationFile.json](UdmCws-Test-Configs/configurati
 
 [scripts/Deploy-UdmCwsDemo.ps1](scripts/Deploy-UdmCwsDemo.ps1) loads Essentials, this plugin and the mock plugins onto a 4-Series processor and checks that `roomstatus` answers. It uploads a copy of the test configuration with the PSK and the real-hardware devices removed, so only mock data is reported.
 
-Requires PowerShell 7, Posh-SSH 3.0+, the .NET SDK and `gh`. Program slot 1 on the processor is replaced.
+**You need:**
 
-```bash
-cp scripts/.env.example scripts/.env   # fill in processor IP, username, password
-pwsh ./scripts/Deploy-UdmCwsDemo.ps1 -Build
-pwsh ./scripts/Deploy-UdmCwsDemo.ps1 -ConfigOnly   # write the demo config only, touch no processor
-```
+- A 4-Series processor reachable over SSH, on the same network as the GGv2 core that will poll it. Program slot 1 is replaced.
+- PowerShell 7, Posh-SSH 3.0+, the .NET SDK and `gh` (signed in).
 
-The script prints the base URL, e.g. `https://<ip>/cws/app01/udmcws/room1`. That value, without `/roomstatus`, is the device address for UDM polling.
+**Load the processor:**
+
+1. Copy the credentials template and fill in `PD_PROCESSOR_HOSTNAME`, `PD_USERNAME` and `PD_PASSWORD`. The `.env` file is git-ignored.
+
+   ```bash
+   cp scripts/.env.example scripts/.env
+   ```
+
+2. Optional: write the demo config without touching the processor, and check `.deploy/configurationFile.json`.
+
+   ```bash
+   pwsh ./scripts/Deploy-UdmCwsDemo.ps1 -ConfigOnly
+   ```
+
+3. Build and deploy. This downloads Essentials 2.24.0, builds the plugin and mock plugins, uploads them with the demo config, restarts program 1 and waits up to 4 minutes for `roomstatus` to answer. An existing `LocalConfig/configurationFile.json` on the processor is renamed aside, not deleted.
+
+   ```bash
+   pwsh ./scripts/Deploy-UdmCwsDemo.ps1 -Build
+   ```
+
+   Use `-SkipEssentials` to push only the plugins and config when Essentials is already loaded.
+
+4. Check the endpoint. The response has `standard`, `status.devices` and `custom`.
+
+   ```bash
+   curl -k https://<ip>/cws/app01/udmcws/room1/roomstatus
+   ```
+
+5. If it does not answer, run `err` and `appstat -p:1` on the processor console.
+
+**Poll it from Portal UDM:**
+
+1. Device type: driver component `com.lam.roomstatus.api`, handler `roomStatusApi`, communication method `https`, a polling interval (for example 300 seconds).
+2. Device of that type: **Settings → Address** is the base URL the script prints, without `/roomstatus`, for example `<ip>/cws/app01/udmcws/room1`. Assign the GGv2 core.
+3. If the roomstatus component is not on that core yet, run a core deployment.
+4. The data lands in the device shadow under `roomStatus`. The device's Properties tab shows it only for paths that have property definitions.
 
 ---
 
