@@ -4,8 +4,9 @@
     for a demo, then checks that the roomstatus endpoint answers.
 
 .DESCRIPTION
-    Follows the crestron-processor raw Posh-SSH deploy path (SFTP upload, then
-    progload -p:N -d, settle, progreset -p:N).
+    SFTP upload with a size check on every file, then progload -p:N, which unpacks the
+    .cpz and restarts the program. With -SkipEssentials there is no .cpz, so it runs
+    progreset -p:N instead to pick up the new plugins and config.
 
     Credentials come from scripts/.env (see .env.example): PD_PROCESSOR_HOSTNAME,
     PD_USERNAME, PD_PASSWORD. Already-set environment variables win over the file.
@@ -45,6 +46,9 @@ $plugins    = @('UdmCws-Epi', 'UdmCws-Test-Room-Epi', 'UdmCws-Test-Occ-Epi', 'Ud
 function Write-Step([string]$Text) { Write-Host "`n==> $Text" -ForegroundColor Cyan }
 
 New-Item -ItemType Directory -Force -Path $deployDir | Out-Null
+$logPath = Join-Path $deployDir "deploy-$(Get-Date -Format yyyyMMdd-HHmmss).log"
+Start-Transcript -Path $logPath | Out-Null
+trap { Write-Host "`nFAILED: $_" -ForegroundColor Red; Write-Host "Full log: $logPath"; Stop-Transcript | Out-Null; break }
 
 # --- Demo config -------------------------------------------------------------------------
 Write-Step 'Writing demo config'
@@ -61,7 +65,7 @@ if (-not $KeepHardware) {
 }
 $configPath = Join-Path $deployDir 'configurationFile.json'
 $config | ConvertTo-Json -Depth 32 | Set-Content -Path $configPath -Encoding utf8
-if ($ConfigOnly) { Write-Host "Demo config: $configPath"; return }
+if ($ConfigOnly) { Write-Host "Demo config: $configPath"; Stop-Transcript | Out-Null; return }
 
 # --- Credentials from .env --------------------------------------------------------------
 if (Test-Path $EnvFile) {
@@ -112,8 +116,28 @@ $userDir    = "/user/program$ProgramSlot"
 $pluginDir  = "$userDir/plugins"
 $localCfg   = "$userDir/LocalConfig/configurationFile.json"
 
+function Get-RemoteSize($Session, [string]$Dir, [string]$Name) {
+    $item = Get-SFTPChildItem -SessionId $Session.SessionId -Path $Dir | Where-Object { $_.Name -eq $Name }
+    if ($item) { $item.Length } else { $null }
+}
+function Send-File($Session, [string]$Local, [string]$Dir) {
+    $file = Get-Item $Local
+    Write-Host ('  {0} ({1:N0} bytes) -> {2}' -f $file.Name, $file.Length, $Dir)
+    $sw = [Diagnostics.Stopwatch]::StartNew()
+    Set-SFTPItem -SessionId $Session.SessionId -Path $file.FullName -Destination $Dir -Force
+    $remote = Get-RemoteSize $Session $Dir $file.Name
+    if ($remote -ne $file.Length) { throw "Upload of $($file.Name) to $Dir is incomplete: $remote of $($file.Length) bytes on the processor." }
+    Write-Host ('    ok, {0:N1} s' -f $sw.Elapsed.TotalSeconds)
+}
+function Invoke-Console($Session, [string]$Command, [int]$TimeOut = 120) {
+    Write-Host "  > $Command"
+    $result = Invoke-SSHCommand -SessionId $Session.SessionId -Command $Command -TimeOut $TimeOut
+    foreach ($line in $result.Output) { if ($line.Trim()) { Write-Host "    $line" } }
+    $result.Output
+}
+
 Write-Step "Uploading to $ip"
-$sftp = New-SFTPSession -ComputerName $ip -Credential $cred -Force -AcceptKey
+$sftp = New-SFTPSession -ComputerName $ip -Credential $cred -Force -AcceptKey -ConnectionTimeout 30 -OperationTimeout 600
 try {
     foreach ($dir in $userDir, $pluginDir) {
         if (-not (Test-SFTPPath -SessionId $sftp.SessionId -Path $dir)) { New-SFTPItem -SessionId $sftp.SessionId -Path $dir -ItemType Directory | Out-Null }
@@ -122,24 +146,37 @@ try {
     if (Test-SFTPPath -SessionId $sftp.SessionId -Path $localCfg) {
         $bak = "configurationFile.json.bak-$(Get-Date -Format yyyyMMddHHmmss)"
         Rename-SFTPFile -SessionId $sftp.SessionId -Path $localCfg -NewName $bak
-        Write-Host "Moved existing LocalConfig to $userDir/LocalConfig/$bak"
+        Write-Host "  Moved existing LocalConfig to $userDir/LocalConfig/$bak"
     }
-    if ($cpz) { Set-SFTPItem -SessionId $sftp.SessionId -Path $cpz -Destination $slotDir -Force }
-    foreach ($f in $cplz) { Set-SFTPItem -SessionId $sftp.SessionId -Path $f.FullName -Destination $pluginDir -Force }
-    Set-SFTPItem -SessionId $sftp.SessionId -Path $configPath -Destination $userDir -Force
+    if ($cpz) { Send-File $sftp $cpz $slotDir }
+    foreach ($f in $cplz) { Send-File $sftp $f.FullName $pluginDir }
+    Send-File $sftp $configPath $userDir
 } finally {
     Remove-SFTPSession -SessionId $sftp.SessionId | Out-Null
 }
 
 # --- Load and restart --------------------------------------------------------------------
-Write-Step "Restarting program $ProgramSlot"
-$ssh = New-SSHSession -ComputerName $ip -Credential $cred -Force -AcceptKey
+Write-Step "Loading program $ProgramSlot"
+$ssh = New-SSHSession -ComputerName $ip -Credential $cred -Force -AcceptKey -ConnectionTimeout 30
 try {
     if ($cpz) {
-        Invoke-SSHCommand -SessionId $ssh.SessionId -Command "progload -p:$ProgramSlot -d" | Out-Null
-        Start-Sleep -Seconds 10   # progload is asynchronous; let the stop settle before progreset
+        # progload unpacks the .cpz and restarts the program, so no progreset is needed after it.
+        Invoke-Console $ssh "progload -p:$ProgramSlot" | Out-Null
+        # It returns before it finishes; the processor removes the .cpz once it has unpacked it.
+        $cpzName = Split-Path $cpz -Leaf
+        $sftp = New-SFTPSession -ComputerName $ip -Credential $cred -Force -AcceptKey -ConnectionTimeout 30 -OperationTimeout 60
+        try {
+            $loadDeadline = (Get-Date).AddSeconds(180)
+            while ((Get-RemoteSize $sftp $slotDir $cpzName) -and (Get-Date) -lt $loadDeadline) { Start-Sleep -Seconds 5 }
+            if (Get-RemoteSize $sftp $slotDir $cpzName) { throw "progload has not unpacked $cpzName after 180 s; it is still in $slotDir." }
+        } finally {
+            Remove-SFTPSession -SessionId $sftp.SessionId | Out-Null
+        }
+        Write-Host '  progload unpacked the program'
+    } else {
+        # Essentials already loaded: restart it to pick up the new plugins and config.
+        Invoke-Console $ssh "progreset -p:$ProgramSlot" | Out-Null
     }
-    Invoke-SSHCommand -SessionId $ssh.SessionId -Command "progreset -p:$ProgramSlot" | Out-Null
 } finally {
     Remove-SSHSession -SessionId $ssh.SessionId | Out-Null
 }
@@ -157,8 +194,20 @@ while (-not $r -and (Get-Date) -lt $deadline) {
         if ($r.StatusCode -ne 200) { $r = $null }
     } catch { }
 }
-if (-not $r) { throw "roomstatus did not answer at $base/roomstatus. Check the console with 'err' and 'appstat -p:$ProgramSlot'." }
+if (-not $r) {
+    Write-Step 'roomstatus did not answer; processor state'
+    $ssh = New-SSHSession -ComputerName $ip -Credential $cred -Force -AcceptKey -ConnectionTimeout 30
+    try {
+        Invoke-Console $ssh "appstat -p:$ProgramSlot" 30 | Out-Null
+        Invoke-Console $ssh 'err' 30 | Out-Null
+    } finally {
+        Remove-SSHSession -SessionId $ssh.SessionId | Out-Null
+    }
+    throw "roomstatus did not answer at $base/roomstatus within $BootWaitSec s. Console output above; full log in $logPath."
+}
 
 Write-Host "`nroomstatus is up: $base/roomstatus" -ForegroundColor Green
 Write-Host "Portal device Address: $($base -replace '^https://', '')   (method: https)" -ForegroundColor Green
 ($r.Content | ConvertFrom-Json).standard | Format-List
+Write-Host "Full log: $logPath"
+Stop-Transcript | Out-Null
