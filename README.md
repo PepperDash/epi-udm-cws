@@ -39,11 +39,11 @@ A standardized REST API for monitoring and controlling room devices in PepperDas
 
 ### 1. Install the Plugin
 
-Download `UdmCws-Epi.1.0.0-local.cplz` from releases and deploy to your processor:
+Download `UdmCws-Epi.<version>.cplz` from [Releases](https://github.com/PepperDash/epi-udm-cws/releases) and deploy to your processor:
 
 ```bash
-# Copy to processor plugins directory
-/user/program1/loadedPlugins/
+# Copy to the program's plugins directory
+/user/program1/plugins/
 ```
 
 ### 2. Add Configuration
@@ -79,10 +79,10 @@ Add to your Essentials `configurationFile.json`:
 
 ```bash
 # Get room status
-curl http://<processor-ip>/app01/udmcws/roomstatus
+curl http://<processor-ip>/cws/app01/udmcws/roomstatus
 
 # Power on the room
-curl -X PATCH http://<processor-ip>/app01/udmcws/roomstatus \
+curl -X PATCH http://<processor-ip>/cws/app01/udmcws/roomstatus \
   -H "Content-Type: application/json" \
   -d '{"apiVersion":"1.0.0","standard":{"state":"on"}}'
 ```
@@ -97,20 +97,23 @@ The Essentials Plugin integrates with PepperDash Essentials and provides full UD
 
 **Requirements:**
 
+- Crestron 4-Series processor or VC-4 (Essentials 2.x does not run on 3-Series)
 - PepperDash Essentials 2.24.0+
 - .NET Framework 4.7.2
 
 **Installation:**
 
-1. Download `UdmCws-Epi.1.0.0-local.cplz`
-2. Upload to `/user/program1/loadedPlugins/` on your processor
+1. Download `UdmCws-Epi.<version>.cplz` from [Releases](https://github.com/PepperDash/epi-udm-cws/releases)
+2. Upload to `/user/program1/plugins/` on your processor
 3. Add configuration to your Essentials config (see [Configuration](#configuration))
 4. Restart Essentials application
 
 **Endpoints:**
 
-- GET `/app01/udmcws/roomstatus` - Get current room and device status
-- PATCH `/app01/udmcws/roomstatus` - Update room state (on/off)
+- GET `/cws/app01/udmcws/[routePrefix/]roomstatus` - Get current room and device status
+- PATCH `/cws/app01/udmcws/[routePrefix/]roomstatus` - Update room state (on/off)
+
+`/cws` is required: the processor serves the plugin's web server under it. `app01` is the program slot (`app02` for slot 2). The `routePrefix/` segment is present only when `routePrefix` is set in config.
 
 ### SIMPL Plus Module
 
@@ -328,7 +331,7 @@ UDM will send required headers. PSK must be set on device.
 All requests must include these headers when PSK is configured:
 
 ```bash
-curl -X GET http://<processor-ip>/app01/udmcws/roomstatus \
+curl -X GET http://<processor-ip>/cws/app01/udmcws/roomstatus \
   -H "PDT-PSK: your-secure-key-here" \
   -H "PDT-API-VERSION: 1.0.0"
 ```
@@ -363,11 +366,11 @@ The room itself manages which devices to power on/off.
 When using route prefixes:
 
 ```REST
-GET  /app01/udmcws/room1/roomstatus
-PATCH /app01/udmcws/room1/roomstatus
+GET  /cws/app01/udmcws/room1/roomstatus
+PATCH /cws/app01/udmcws/room1/roomstatus
 
-GET  /app01/udmcws/room2/roomstatus
-PATCH /app01/udmcws/room2/roomstatus
+GET  /cws/app01/udmcws/room2/roomstatus
+PATCH /cws/app01/udmcws/room2/roomstatus
 ```
 
 ---
@@ -535,7 +538,21 @@ The repository includes comprehensive mock plugins for testing without hardware:
 
 ### Test Configuration
 
-See [UdmCws-Epi/Testing/configurationFile.json](UdmCws-Epi/Testing/configurationFile.json) for a complete test configuration using mock plugins and real devices.
+See [UdmCws-Test-Configs/configurationFile.json](UdmCws-Test-Configs/configurationFile.json) for a complete test configuration using mock plugins and real devices.
+
+### Demo Deploy
+
+[scripts/Deploy-UdmCwsDemo.ps1](scripts/Deploy-UdmCwsDemo.ps1) loads Essentials, this plugin and the mock plugins onto a 4-Series processor and checks that `roomstatus` answers. It uploads a copy of the test configuration with the PSK and the real-hardware devices removed, so only mock data is reported.
+
+Requires PowerShell 7, Posh-SSH 3.0+, the .NET SDK and `gh`. Program slot 1 on the processor is replaced.
+
+```bash
+cp scripts/.env.example scripts/.env   # fill in processor IP, username, password
+pwsh ./scripts/Deploy-UdmCwsDemo.ps1 -Build
+pwsh ./scripts/Deploy-UdmCwsDemo.ps1 -ConfigOnly   # write the demo config only, touch no processor
+```
+
+The script prints the base URL, e.g. `https://<ip>/cws/app01/udmcws/room1`. That value, without `/roomstatus`, is the device address for UDM polling.
 
 ---
 
@@ -550,14 +567,14 @@ See [UdmCws-Epi/Testing/configurationFile.json](UdmCws-Epi/Testing/configuration
 ### Build Commands
 
 ```bash
-# Build entire solution
-dotnet build UdmCws.sln --configuration Release
+# Build the solution (library and plugin)
+dotnet build UdmCws.4Series.sln --configuration Release
 
 # Build specific projects
 dotnet build UdmCws-Lib/UdmCws-Lib.csproj --configuration Release
 dotnet build UdmCws-Epi/UdmCws-Epi.csproj --configuration Release
 
-# Build mock plugins
+# Build mock plugins (not in the solution)
 dotnet build UdmCws-Test-Room-Epi/UdmCws-Test-Room-Epi.csproj --configuration Release
 dotnet build UdmCws-Test-Occ-Epi/UdmCws-Test-Occ-Epi.csproj --configuration Release
 dotnet build UdmCws-Test-Device-Epi/UdmCws-Test-Device-Epi.csproj --configuration Release
@@ -573,15 +590,9 @@ Build artifacts are generated in `output/`:
 - `UdmCws-Test-Device-Epi.1.0.0-local.cplz` - Mock device plugin
 - `UdmCws-Lib.1.0.0-local.nupkg` - Core library NuGet package
 
-### Download Dependencies
+### Dependencies
 
-```bash
-# macOS/Linux
-./GetPackages.sh
-
-# Windows
-GetPackages.BAT
-```
+Dependencies, including PepperDash Essentials and the Crestron SDK, are NuGet package references and restore when you build.
 
 ---
 
